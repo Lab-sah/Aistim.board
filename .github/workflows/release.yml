@@ -1,6 +1,6 @@
 name: Release
 
-# Setiap push ke main membuat/memperbarui release v<versi> dengan Aistim-Tab-<versi>.zip
+# Setiap push ke main membuat/memperbarui release v<versi> dengan Aistim-Board-<versi>.zip
 # (manifest.json di ROOT zip: ekstrak lalu "Load unpacked"). Naikkan "version" di extension/manifest.json untuk rilis baru.
 
 on:
@@ -29,7 +29,7 @@ jobs:
           node --check extension/script.js
           VERSION=$(python3 -c "import json;print(json.load(open('extension/manifest.json'))['version'])")
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          ZIP="Aistim-Tab-$VERSION.zip"
+          ZIP="Aistim-Board-$VERSION.zip"
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
           (cd extension && zip -r "../$ZIP" .)
           unzip -l "$ZIP" | grep -E ' manifest\.json$'
@@ -41,6 +41,6 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ZIP" --clobber
           else
-            gh release create "$TAG" "$ZIP" --title "Aistim Tab v$VERSION" --notes "Unduh **$ZIP**, ekstrak, lalu Load unpacked. ID extension tetap (lihat README)." --latest \
+            gh release create "$TAG" "$ZIP" --title "Aistim Board v$VERSION" --notes "Unduh **$ZIP**, ekstrak, lalu Load unpacked. ID extension tetap (lihat README)." --latest \
               || gh release upload "$TAG" "$ZIP" --clobber
           fi

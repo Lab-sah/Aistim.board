@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b2f6b"/>
+      <stop offset=".45" stop-color="#e45d75"/>
+      <stop offset=".62" stop-color="#ffb36b"/>
+    </linearGradient>
+    <linearGradient id="laut" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a8ca6"/>
+      <stop offset="1" stop-color="#0d3d57"/>
+    </linearGradient>
+    <linearGradient id="pasir" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d19c"/>
+      <stop offset="1" stop-color="#b9824b"/>
+    </linearGradient>
+    <radialGradient id="cahaya" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff0c2"/>
+      <stop offset="1" stop-color="#fff0c2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#langit)"/>
+  <circle cx="1120" cy="610" r="300" fill="url(#cahaya)"/>
+  <circle cx="1120" cy="610" r="75" fill="#fff4cf"/>
+  <rect y="610" width="1600" height="200" fill="url(#laut)"/>
+  <path d="M1060 650 H1180 M1040 690 H1200 M1020 730 H1220" stroke="#ffe2a0" stroke-opacity=".4" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M0 640 Q400 620 800 640 T1600 640" stroke="#fff" stroke-opacity=".25" stroke-width="3" fill="none"/>
+  <path d="M0 680 Q400 660 800 680 T1600 680" stroke="#fff" stroke-opacity=".18" stroke-width="3" fill="none"/>
+  <path d="M0 750 Q500 720 900 760 T1600 740" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/>
+  <path d="M0 1000 L0 800 Q500 740 900 800 T1600 790 L1600 1000Z" fill="url(#pasir)"/>
+</svg>

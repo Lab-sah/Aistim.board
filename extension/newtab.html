@@ -3,10 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aistim Tab</title>
+  <title>Aistim Board</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Latar gelombang: aktif hanya saat pilihan "Gelombang" dipakai (script.js) -->
+  <canvas id="fx" class="fx" aria-hidden="true" hidden></canvas>
+  <!-- Gelembung: aktif hanya untuk latar foto yang punya flag "gelembung" (script.js) -->
+  <canvas id="gel" class="fx" aria-hidden="true" hidden></canvas>
   <main class="halaman">
     <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
     <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
@@ -44,6 +48,11 @@
               <button id="sumber-segar" class="pins-btn" type="button">Segarkan</button>
             </div>
             <button id="pin-tambah" class="pin-tambah" type="button">+ Tambah menu</button>
+            <section class="latar" aria-label="Latar halaman">
+              <div class="latar-head"><span>Latar</span><small id="latar-nama"></small></div>
+              <div id="latar-pilih" class="latar-pilih" role="radiogroup" aria-label="Pilih latar"></div>
+              <label class="latar-harian"><input id="latar-harian" type="checkbox"> Ganti otomatis tiap hari</label>
+            </section>
             <div class="upd">
               <div class="upd-baris">
                 <button id="upd-cek" class="pins-btn" type="button">Periksa pembaruan</button>

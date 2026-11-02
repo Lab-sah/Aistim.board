@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1b4d"/>
+      <stop offset=".45" stop-color="#7a3e6f"/>
+      <stop offset=".6" stop-color="#f4a261"/>
+    </linearGradient>
+    <radialGradient id="cahaya" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffe8b0" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ffe8b0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="danau" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2a5e"/>
+      <stop offset="1" stop-color="#120c26"/>
+    </linearGradient>
+    <g id="gunung">
+      <path d="M0 600 L0 480 L150 360 L290 470 L430 300 L600 500 L740 380 L900 520 L1060 330 L1220 500 L1380 390 L1600 500 L1600 600Z" fill="#4b2e6b"/>
+    </g>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#langit)"/>
+  <circle cx="800" cy="560" r="260" fill="url(#cahaya)"/>
+  <circle cx="800" cy="560" r="56" fill="#ffe8b0"/>
+  <use href="#gunung"/>
+  <rect y="600" width="1600" height="400" fill="url(#danau)"/>
+  <use href="#gunung" transform="matrix(1 0 0 -1 0 1200)" opacity=".45"/>
+  <path d="M740 650 H860 M720 690 H880 M700 730 H900" stroke="#ffe8b0" stroke-opacity=".35" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M520 740 Q800 720 1080 740" stroke="#fff" stroke-opacity=".12" stroke-width="3" fill="none"/>
+  <path d="M440 820 Q800 796 1160 820" stroke="#fff" stroke-opacity=".08" stroke-width="2" fill="none"/>
+</svg>

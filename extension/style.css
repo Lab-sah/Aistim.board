@@ -5,11 +5,18 @@ body {
   min-height: 100vh;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: #fff;
-  background: linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%);
+  background: var(--latar, linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%));
   background-attachment: fixed;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35); /* teks di luar kartu tetap terbaca di atas foto yang terang */
 }
 
+/* Latar gelombang: kanvas di belakang seluruh halaman, tidak menangkap klik (klik tetap sampai ke kartu) */
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+.fx[hidden] { display: none; }
+
 .halaman {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -133,6 +140,18 @@ body {
 .upd small { font-size: 12px; line-height: 1.4; opacity: 0.8; }
 .upd-auto { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.85; }
 .upd-auto input { margin: 0; }
+
+/* Latar halaman: pilihan warna di sisi belakang (script.js mengisi --latar di :root) */
+.latar { margin: 0 0 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+.latar-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+.latar-head small { font-size: 12px; opacity: 0.7; }
+.latar-pilih { display: flex; flex-wrap: wrap; gap: 8px; }
+.latar-sw { width: 30px; height: 30px; padding: 0; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; cursor: pointer; }
+.latar-sw:hover { border-color: rgba(255, 255, 255, 0.8); }
+.latar-sw[aria-checked="true"] { box-shadow: 0 0 0 2px #1f2937, 0 0 0 4px #fff; }
+.latar-sw:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.latar-harian { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; opacity: 0.85; }
+.latar-harian input { margin: 0; }
 
 .msg { min-height: 18px; margin: 8px 4px 0; font-size: 13px; opacity: 0.9; }
 

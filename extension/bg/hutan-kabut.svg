@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4e57"/>
+      <stop offset=".6" stop-color="#7fb9a6"/>
+      <stop offset="1" stop-color="#d9efd9"/>
+    </linearGradient>
+    <g id="cemara">
+      <path d="M0 -150 L45 -60 L24 -60 L70 10 L-70 10 L-24 -60 L-45 -60Z"/>
+    </g>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#langit)"/>
+  <circle cx="1280" cy="260" r="90" fill="#fff8e1" opacity=".85"/>
+  <path d="M0 520 Q200 430 420 500 T860 480 T1300 470 T1600 500 L1600 1000 L0 1000Z" fill="#5f9e8c" opacity=".7"/>
+  <path d="M0 620 Q260 540 520 610 T1040 600 T1600 610 L1600 1000 L0 1000Z" fill="#2f7161"/>
+  <g fill="#174a3e">
+    <use href="#cemara" transform="translate(80 860) scale(1.8)"/>
+    <use href="#cemara" transform="translate(230 880) scale(2.2)"/>
+    <use href="#cemara" transform="translate(420 850) scale(1.5)"/>
+    <use href="#cemara" transform="translate(610 870) scale(2)"/>
+    <use href="#cemara" transform="translate(800 840) scale(1.4)"/>
+    <use href="#cemara" transform="translate(960 880) scale(2.1)"/>
+    <use href="#cemara" transform="translate(1140 855) scale(1.6)"/>
+    <use href="#cemara" transform="translate(1320 880) scale(2.2)"/>
+    <use href="#cemara" transform="translate(1500 850) scale(1.5)"/>
+  </g>
+  <path d="M0 930 Q400 900 800 930 T1600 920 L1600 1000 L0 1000Z" fill="#0c2e26"/>
+</svg>

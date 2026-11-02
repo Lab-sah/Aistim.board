@@ -1,5 +1,5 @@
 "use strict";
-// Aistim Tab: halaman tab baru berisi menu pintasan (tambah, ubah, hapus). Tanpa akun, tanpa server:
+// Aistim Board: halaman tab baru berisi menu pintasan (tambah, ubah, hapus). Tanpa akun, tanpa server:
 // data tersimpan di browser ini. Permintaan jaringan hanya dua: ikon favicon Google dan pemeriksaan rilis di GitHub (lihat PRIVACY.md).
 
 const $ = (id) => document.getElementById(id);
@@ -92,7 +92,7 @@ function rapikanPins(daftar) {
     const href = x && typeof x.href === "string" ? normalUrl(x.href) : null;
     if (!href) continue;
     const id = idLink(href);
-    const p = { id, nama: typeof x.nama === "string" ? x.nama : "", href, ikon: typeof x.ikon === "string" ? x.ikon : "" };
+    const p = { id, nama: typeof x.nama === "string" ? x.nama.slice(0, 30) : "", href, ikon: typeof x.ikon === "string" ? grafem(x.ikon, 2) : "" };
     const d = ada.get(id);
     if (!d) {
       ada.set(id, p);
@@ -377,7 +377,7 @@ $("pin-del").addEventListener("click", async () => {
 // File main.json di repo (cabang main) diedit lewat GitHub dan tampil sebagai menu bersama untuk semua yang memasang
 // extension ini. Hanya dibaca dan divalidasi ketat (hanya link http/https, tampil sebagai teks biasa). Tidak ada tanda
 // tangan, jadi siapa pun yang boleh mengubah file itu di repo ikut menentukan menunya.
-const MENU_URL = "https://raw.githubusercontent.com/devtim-lab/Aistim.board/main/main.json";
+const MENU_URL = "https://raw.githubusercontent.com/Lab-sah/Aistim.board/main/main.json";
 const MENU_JEDA = 5 * 60 * 1000; // GitHub menyimpan salinan file mentah sampai 5 menit
 const MAX_V = 48;
 let pinsV = []; // menu bersama dari main.json: [{ id, nama, href, ikon }]
@@ -433,6 +433,8 @@ async function muatMenuBersama(paksa) {
       sumber = { ...sumber, ada: false, err: "", lewat: [], t: Date.now() };
     } else {
       if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "GitHub membatasi permintaan, coba lagi nanti" : "GitHub membalas " + r.status);
+      // Batas ukuran dicek dari header dulu, supaya berkas yang terlalu besar tidak diunduh seluruhnya
+      if (Number(r.headers.get("content-length") || 0) > 100000) throw new Error("berkasnya terlalu besar");
       const { items, lewat } = bacaMenu((await r.text()).replace(/^\uFEFF/, ""));
       pinsV = items;
       sumber = { ...sumber, ada: true, err: "", lewat, t: Date.now() };
@@ -467,21 +469,22 @@ $("sumber-segar").addEventListener("click", () => muatMenuBersama(true));
 // ---------- Jam dan kata-kata ----------
 const QUOTES = [
   { text: "Mulailah dari mana kamu berada, gunakan apa yang kamu punya.", author: "Arthur Ashe" },
-  { text: "Langkah kecil setiap hari lebih baik daripada lompatan besar sesekali.", author: "Anonim" },
-  { text: "Fokus pada kemajuan, bukan kesempurnaan.", author: "Anonim" },
-  { text: "Kerjakan yang penting dulu, sisanya menyusul.", author: "Anonim" },
-  { text: "Konsistensi mengalahkan intensitas.", author: "Anonim" },
+  { text: "Langkah kecil setiap hari lebih baik daripada lompatan besar sesekali.", author: "Aistim" },
+  { text: "Fokus pada kemajuan, bukan kesempurnaan.", author: "Aistim" },
+  { text: "Kerjakan yang penting dulu, sisanya menyusul.", author: "Aistim" },
+  { text: "Konsistensi mengalahkan intensitas.", author: "Aistim" },
   { text: "Sedikit demi sedikit, lama-lama menjadi bukit.", author: "Peribahasa" },
-  { text: "Hari ini adalah kesempatan baru untuk memulai.", author: "Anonim" },
-  { text: "Tenang, satu langkah saja dulu.", author: "Anonim" },
-  { text: "Yang dirapikan hari ini memudahkan besok.", author: "Anonim" },
-  { text: "Istirahat juga bagian dari bekerja.", author: "Anonim" },
+  { text: "Hari ini adalah kesempatan baru untuk memulai.", author: "Aistim" },
+  { text: "Tenang, satu langkah saja dulu.", author: "Aistim" },
+  { text: "Yang dirapikan hari ini memudahkan besok.", author: "Aistim" },
+  { text: "Istirahat juga bagian dari bekerja.", author: "Aistim" },
 ];
 // Jam 24 jam, diperbarui tepat di pergantian menit (dan saat tab kembali terlihat)
 function tick() {
   const now = new Date();
   $("clock").textContent = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   $("date").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  if (latar.harian) terapkanLatar(); // ganti warna saat hari berganti
   clearTimeout(tick.t);
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
@@ -495,11 +498,259 @@ function initQuote() {
   $("quote-author").textContent = q.author;
 }
 
+// ---------- Latar: warna gradien halaman, bisa diganti atau berganti sendiri tiap hari ----------
+// Pilihan disimpan di browser (chrome.storage.local, kunci "latar"). Tanpa jaringan.
+// Pemandangan (foto: berkas SVG di bg/) dan warna gradien. Pemandangan pertama jadi default.
+const LATAR = [
+  { id: "danau", nama: "Danau senja", foto: "bg/danau-senja.svg" },
+  { id: "gunung", nama: "Gunung pagi", foto: "bg/gunung-pagi.svg" },
+  { id: "hutan", nama: "Hutan kabut", foto: "bg/hutan-kabut.svg" },
+  { id: "pantai", nama: "Pantai senja", foto: "bg/pantai-senja.svg" },
+  { id: "malam", nama: "Malam berbintang", foto: "bg/malam-bintang.svg" },
+  // Foto dengan gelembung yang naik pelan di atasnya (flag "gelembung")
+  { id: "akuarium", nama: "Akuarium", foto: "bg/akuarium.jpg", gelembung: true },
+  { id: "musim-gugur", nama: "Hutan musim gugur", foto: "bg/hutan-musim-gugur.jpg", gelembung: true },
+  // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
+  { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
+  { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
+  { id: "biru", nama: "Biru malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
+  { id: "ungu", nama: "Ungu", css: "linear-gradient(160deg, #2e1065 0%, #6b21a8 50%, #1e1b4b 100%)" },
+  { id: "arang", nama: "Arang", css: "linear-gradient(160deg, #111827 0%, #374151 50%, #0b0f19 100%)" },
+];
+const LATAR_DEFAULT = "danau";
+let latar = { id: LATAR_DEFAULT, harian: false };
+function normLatar(v) {
+  const o = v && typeof v === "object" ? v : {};
+  return { id: LATAR.some((x) => x.id === o.id) ? o.id : LATAR_DEFAULT, harian: o.harian === true };
+}
+// Nilai CSS untuk latar: foto (dengan warna cadangan) atau gradien
+function latarCss(x) {
+  return x.foto ? 'url("' + x.foto + '") center / cover no-repeat' : x.css;
+}
+// Mode harian: satu warna per hari (hari menurut jam lokal), berurutan mengikuti daftar
+function latarAktif() {
+  if (latar.harian) return LATAR[Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % LATAR.length];
+  return LATAR.find((x) => x.id === latar.id) || LATAR[0];
+}
+// ---------- Latar gelombang: mesh yang bergerak, dan riak di setiap klik ----------
+const fx = $("fx");
+const fxCtx = fx.getContext("2d");
+const fxGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let fxAktif = false, fxRaf = 0, fxW = 0, fxH = 0, fxDpr = 1, fxT0 = 0;
+const riak = []; // { x, y, t } dalam piksel kanvas; t = waktu klik (performance.now)
+// Bola warna mesh: rgb, opasitas, fase awal, dan kecepatan gerak
+const MESH = [
+  { rgb: "34,211,238", a: 0.5, p: 0.0, k: 1.0 },
+  { rgb: "94,234,212", a: 0.38, p: 2.1, k: 0.8 },
+  { rgb: "124,58,237", a: 0.42, p: 4.2, k: 1.2 },
+  { rgb: "14,116,144", a: 0.6, p: 5.3, k: 0.9 },
+];
+function fxUkuran() {
+  fxDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  fxW = Math.round(innerWidth * fxDpr);
+  fxH = Math.round(innerHeight * fxDpr);
+  fx.width = fxW;
+  fx.height = fxH;
+}
+function fxGambar(now) {
+  const W = fxW, H = fxH, s = Math.max(W, H);
+  const t = fxGerak ? now - fxT0 : 0;
+  fxCtx.globalCompositeOperation = "source-over";
+  fxCtx.fillStyle = "#0a4a57";
+  fxCtx.fillRect(0, 0, W, H);
+  for (const b of MESH) {
+    const cx = W * (0.5 + 0.38 * Math.sin(t * 0.00013 * b.k + b.p));
+    const cy = H * (0.5 + 0.34 * Math.cos(t * 0.00011 * b.k + b.p * 1.7));
+    const g = fxCtx.createRadialGradient(cx, cy, 0, cx, cy, s * 0.6);
+    g.addColorStop(0, "rgba(" + b.rgb + "," + b.a + ")");
+    g.addColorStop(1, "rgba(" + b.rgb + ",0)");
+    fxCtx.fillStyle = g;
+    fxCtx.fillRect(0, 0, W, H);
+  }
+  // Riak: cincin cahaya yang melebar dan memudar, dengan cincin kedua yang sedikit tertinggal
+  for (let i = riak.length - 1; i >= 0; i--) {
+    const u = (now - riak[i].t) / 2600;
+    if (u >= 1) { riak.splice(i, 1); continue; }
+    for (const off of [0, 0.14]) {
+      const v = u - off;
+      if (v <= 0) continue;
+      const r = (1 - Math.pow(1 - v, 3)) * s * 0.65;
+      const k = (1 - v) * (off ? 0.5 : 1);
+      const w = 70 * fxDpr;
+      const g = fxCtx.createRadialGradient(riak[i].x, riak[i].y, Math.max(0, r - w), riak[i].x, riak[i].y, r + w);
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop(0.5, "rgba(255,255,255," + (0.28 * k).toFixed(3) + ")");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      fxCtx.fillStyle = g;
+      fxCtx.fillRect(0, 0, W, H);
+    }
+  }
+}
+// Dibatasi 30 fps supaya tidak menguras baterai. Setelah 10 detik tanpa sentuhan atau gerakan mouse, turun ke 10 fps
+// (gerak tetap pelan dan terus berjalan), dan kembali ke 30 fps begitu layar disentuh lagi.
+const FPS_MAKS = 1000 / 30;
+const FPS_DIAM = 1000 / 10;
+const DIAM_SETELAH = 10000;
+let lastAktif = performance.now();
+["pointerdown", "pointermove", "keydown"].forEach((ev) => window.addEventListener(ev, () => { lastAktif = performance.now(); }, { passive: true }));
+const jedaFrame = (now) => (now - lastAktif > DIAM_SETELAH ? FPS_DIAM : FPS_MAKS);
+let fxLast = -Infinity;
+function fxFrame(now) {
+  fxRaf = 0;
+  if (!fxAktif || document.hidden) return;
+  if (now - fxLast >= jedaFrame(now)) { fxLast = now; fxGambar(now); }
+  fxRaf = requestAnimationFrame(fxFrame);
+}
+function fxNyala(on) {
+  if (on === fxAktif) return;
+  fxAktif = on;
+  fx.hidden = !on;
+  if (on) {
+    fxUkuran();
+    fxT0 = performance.now();
+    if (!fxRaf && !document.hidden) fxRaf = requestAnimationFrame(fxFrame);
+  } else if (fxRaf) {
+    cancelAnimationFrame(fxRaf);
+    fxRaf = 0;
+  }
+}
+window.addEventListener("pointerdown", (e) => {
+  if (!fxAktif || document.querySelector("dialog[open]")) return;
+  riak.push({ x: e.clientX * fxDpr, y: e.clientY * fxDpr, t: performance.now() });
+  if (riak.length > 12) riak.shift();
+  if (!fxRaf && !document.hidden) fxRaf = requestAnimationFrame(fxFrame);
+});
+window.addEventListener("resize", () => { if (fxAktif) fxUkuran(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && fxAktif && !fxRaf) fxRaf = requestAnimationFrame(fxFrame);
+});
+
+// ---------- Gelembung: gelembung naik pelan di atas foto, sebagian bergoyang ke samping ----------
+const gel = $("gel");
+const gelCtx = gel.getContext("2d");
+const gelGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let gelAktif = false, gelRaf = 0, gelW = 0, gelH = 0, gelDpr = 1, gelLast = 0;
+let gelembung = [];
+// Satu gelembung (ukuran dalam piksel CSS). acak = true saat awal, supaya tidak semua muncul dari bawah sekaligus
+function gelBuat(acak) {
+  const b = { r: 0, x: 0, y: 0, v: 0, ph: Math.random() * 6.283, fr: 0.5 + Math.random() * 0.8, amp: 4 + Math.random() * 12 };
+  gelUlang(b, acak);
+  return b;
+}
+function gelUlang(b, acak) {
+  b.r = 4 + Math.random() * 14;
+  b.x = Math.random() * innerWidth;
+  b.y = acak ? Math.random() * innerHeight : innerHeight + b.r + Math.random() * 60;
+  b.v = (16 + Math.random() * 34) * (gelGerak ? 1 : 0.3); // piksel per detik
+}
+function gelUkuran() {
+  gelDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  gelW = Math.round(innerWidth * gelDpr);
+  gelH = Math.round(innerHeight * gelDpr);
+  gel.width = gelW;
+  gel.height = gelH;
+  const n = Math.min(40, Math.max(12, Math.round((innerWidth * innerHeight) / 26000)));
+  gelembung = Array.from({ length: n }, () => gelBuat(true));
+}
+function gelGambar(now) {
+  const dt = gelLast ? Math.min(0.05, (now - gelLast) / 1000) : 0;
+  gelLast = now;
+  gelCtx.clearRect(0, 0, gelW, gelH);
+  const t = now / 1000;
+  for (const b of gelembung) {
+    b.y -= b.v * dt;
+    if (b.y + b.r < -10) gelUlang(b, false);
+    const x = b.x + (gelGerak ? Math.sin(t * b.fr + b.ph) * b.amp : 0);
+    const cx = x * gelDpr, cy = b.y * gelDpr, rr = b.r * gelDpr;
+    gelCtx.beginPath();
+    gelCtx.arc(cx, cy, rr, 0, Math.PI * 2);
+    gelCtx.fillStyle = "rgba(255,255,255,0.10)";
+    gelCtx.fill();
+    gelCtx.lineWidth = Math.max(1, rr * 0.12);
+    gelCtx.strokeStyle = "rgba(255,255,255,0.5)";
+    gelCtx.stroke();
+    gelCtx.beginPath(); // kilau kecil di sisi kiri atas
+    gelCtx.arc(cx - rr * 0.38, cy - rr * 0.38, rr * 0.22, 0, Math.PI * 2);
+    gelCtx.fillStyle = "rgba(255,255,255,0.7)";
+    gelCtx.fill();
+  }
+}
+let gelLastDraw = -Infinity;
+function gelFrame(now) {
+  gelRaf = 0;
+  if (!gelAktif || document.hidden) return;
+  if (now - gelLastDraw >= jedaFrame(now)) { gelLastDraw = now; gelGambar(now); }
+  gelRaf = requestAnimationFrame(gelFrame);
+}
+function gelNyala(on) {
+  if (on === gelAktif) return;
+  gelAktif = on;
+  gel.hidden = !on;
+  if (on) {
+    gelUkuran();
+    gelLast = 0;
+    if (!gelRaf && !document.hidden) gelRaf = requestAnimationFrame(gelFrame);
+  } else if (gelRaf) {
+    cancelAnimationFrame(gelRaf);
+    gelRaf = 0;
+  }
+}
+window.addEventListener("resize", () => { if (gelAktif) gelUkuran(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && gelAktif && !gelRaf) gelRaf = requestAnimationFrame(gelFrame);
+});
+
+function terapkanLatar() {
+  const a = latarAktif();
+  document.documentElement.style.setProperty("--latar", latarCss(a));
+  fxNyala(!!a.animasi);
+  gelNyala(!!a.gelembung);
+  $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
+  $("latar-harian").checked = latar.harian;
+  document.querySelectorAll(".latar-sw").forEach((b) => {
+    const on = b.dataset.id === a.id;
+    b.setAttribute("aria-checked", String(on));
+    b.tabIndex = on ? 0 : -1; // satu tombol yang bisa difokus lewat Tab; panah untuk memilih yang lain
+  });
+}
+function bangunLatar() {
+  const g = $("latar-pilih");
+  g.textContent = "";
+  LATAR.forEach((x) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "latar-sw";
+    b.dataset.id = x.id;
+    b.setAttribute("role", "radio");
+    b.title = x.nama;
+    b.setAttribute("aria-label", "Latar " + x.nama);
+    b.style.background = latarCss(x);
+    b.addEventListener("click", () => simpanLatar({ id: x.id, harian: false }));
+    g.append(b);
+  });
+  g.addEventListener("keydown", (e) => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
+    e.preventDefault();
+    const sw = [...g.querySelectorAll(".latar-sw")];
+    const i = Math.max(0, sw.indexOf(document.activeElement));
+    const dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+    const next = sw[(i + dir + sw.length) % sw.length];
+    next.focus();
+    next.click();
+  });
+  $("latar-harian").addEventListener("change", () => simpanLatar({ id: latar.id, harian: $("latar-harian").checked }));
+}
+async function simpanLatar(next) {
+  latar = next;
+  terapkanLatar();
+  try { await store.set("latar", latar); } catch (e) { msg("Gagal menyimpan latar."); }
+}
+
 // ---------- Pembaruan ----------
 // Memeriksa rilis terbaru di GitHub (tanpa token, tanpa data pribadi) dan menautkan unduhan zip-nya. Tidak memasang apa pun
 // sendiri. Tautan unduhan dibangun dari nomor versi yang sudah divalidasi, bukan diambil dari isi balasan GitHub.
-const UPD_API = "https://api.github.com/repos/devtim-lab/Aistim.board/releases/latest";
-const UPD_DL = "https://github.com/devtim-lab/Aistim.board/releases/download/";
+const UPD_API = "https://api.github.com/repos/Lab-sah/Aistim.board/releases/latest";
+const UPD_DL = "https://github.com/Lab-sah/Aistim.board/releases/download/";
 const UPD_JEDA = 6 * 60 * 60 * 1000; // pemeriksaan otomatis paling sering tiap 6 jam
 let upd = null; // hasil pemeriksaan terakhir: { t, v, url }
 const verAngka = (v) => (typeof v === "string" && /^\d{1,4}\.\d{1,4}\.\d{1,4}$/.test(v) ? v.split(".").map(Number) : null);
@@ -512,15 +763,20 @@ function lebihBaru(a, b) {
 function verTerpasang() {
   try { return chrome.runtime.getManifest().version; } catch (e) { return ""; }
 }
-const urlZip = (v) => UPD_DL + "v" + v + "/Aistim-Tab-" + v + ".zip";
+// Nama zip yang dikenali: nama sekarang, dan nama lama untuk rilis yang sudah terbit (v1.3.0 dan sebelumnya).
+// Hanya dua nama tetap ini yang dipakai untuk membangun tautan, jadi tautan tidak pernah diambil dari balasan GitHub.
+const NAMA_ZIP = ["Aistim-Board-", "Aistim-Tab-"];
+const urlZip = (v, nama) => UPD_DL + "v" + v + "/" + nama + v + ".zip";
 async function ambilRilis() {
   const r = await fetch(UPD_API, { headers: { Accept: "application/vnd.github+json" }, cache: "no-cache" });
   if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "GitHub membatasi permintaan, coba lagi nanti." : "GitHub membalas " + r.status + ".");
   const j = await r.json();
   const m = /^v(\d+\.\d+\.\d+)$/.exec((j && j.tag_name) || "");
   if (!m || !verAngka(m[1])) throw new Error("Format rilis tidak dikenali.");
-  if (!Array.isArray(j.assets) || !j.assets.some((x) => x && x.name === "Aistim-Tab-" + m[1] + ".zip")) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
-  return { v: m[1], url: urlZip(m[1]) };
+  const assets = Array.isArray(j.assets) ? j.assets : [];
+  const nama = NAMA_ZIP.find((n) => assets.some((x) => x && x.name === n + m[1] + ".zip"));
+  if (!nama) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
+  return { v: m[1], nama, url: urlZip(m[1], nama) };
 }
 function tampilUpd() {
   const pas = verTerpasang();
@@ -530,7 +786,7 @@ function tampilUpd() {
   $("upd-cara").hidden = !baru;
   if (baru) {
     $("upd-pill").href = upd.url;
-    $("upd-pill").title = "Unduh Aistim Tab v" + upd.v;
+    $("upd-pill").title = "Unduh Aistim Board v" + upd.v;
     $("upd-pill-teks").textContent = "Versi baru v" + upd.v + " tersedia · Unduh";
     $("upd-unduh").href = upd.url;
     $("upd-unduh").textContent = "Unduh v" + upd.v;
@@ -559,7 +815,7 @@ async function muatPembaruan() {
   const otomatis = (await store.get("updAuto", true)) !== false;
   $("upd-auto").checked = otomatis;
   const c = await store.get("updInfo", null);
-  if (c && typeof c.t === "number" && verAngka(c.v) && c.url === urlZip(c.v)) upd = { t: c.t, v: c.v, url: c.url };
+  if (c && typeof c.t === "number" && verAngka(c.v) && NAMA_ZIP.includes(c.nama) && c.url === urlZip(c.v, c.nama)) upd = { t: c.t, v: c.v, nama: c.nama, url: c.url };
   tampilUpd();
   if (otomatis) periksaPembaruan(false); // tidak ditunggu; gagal = diam saja
 }
@@ -584,7 +840,11 @@ function dariLuar(nilai) {
 }
 function pantau() {
   if (hasChrome) {
-    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => { if (area === "local" && c.pins) dariLuar(c.pins.newValue); });
+    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => {
+      if (area !== "local") return;
+      if (c.pins) dariLuar(c.pins.newValue);
+      if (c.latar && c.latar.newValue) { latar = normLatar(c.latar.newValue); terapkanLatar(); }
+    });
   } else {
     window.addEventListener("storage", (e) => {
       if (e.key !== "pins") return;
@@ -595,9 +855,9 @@ function pantau() {
 function labelVersi() {
   try {
     const v = chrome.runtime.getManifest().version;
-    $("ver").textContent = "Aistim Tab v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
+    $("ver").textContent = "Aistim Board v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
   } catch (e) {
-    $("ver").textContent = "Aistim Tab";
+    $("ver").textContent = "Aistim Board";
   }
 }
 async function mulai() {
@@ -608,6 +868,9 @@ async function mulai() {
   if (JSON.stringify(pins) !== JSON.stringify(tersimpan)) {
     try { await store.set("pins", pins); } catch (e) {}
   }
+  try { latar = normLatar(await store.get("latar", null)); } catch (e) {}
+  bangunLatar();
+  terapkanLatar();
   try { await muatCacheMenu(); } catch (e) {}
   renderPins();
   tampilSumber();
