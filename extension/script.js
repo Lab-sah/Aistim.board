@@ -498,18 +498,27 @@ function initQuote() {
 
 // ---------- Latar: warna gradien halaman, bisa diganti atau berganti sendiri tiap hari ----------
 // Pilihan disimpan di browser (chrome.storage.local, kunci "latar"). Tanpa jaringan.
+// Pemandangan (foto: berkas SVG di bg/) dan warna gradien. Pemandangan pertama jadi default.
 const LATAR = [
+  { id: "danau", nama: "Danau senja", foto: "bg/danau-senja.svg" },
+  { id: "gunung", nama: "Gunung pagi", foto: "bg/gunung-pagi.svg" },
+  { id: "hutan", nama: "Hutan kabut", foto: "bg/hutan-kabut.svg" },
+  { id: "pantai", nama: "Pantai senja", foto: "bg/pantai-senja.svg" },
+  { id: "malam", nama: "Malam berbintang", foto: "bg/malam-bintang.svg" },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
-  { id: "malam", nama: "Malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
+  { id: "biru", nama: "Biru malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
   { id: "ungu", nama: "Ungu", css: "linear-gradient(160deg, #2e1065 0%, #6b21a8 50%, #1e1b4b 100%)" },
-  { id: "hutan", nama: "Hutan", css: "linear-gradient(160deg, #052e16 0%, #166534 50%, #14532d 100%)" },
-  { id: "senja", nama: "Senja", css: "linear-gradient(160deg, #7c2d12 0%, #9a3412 50%, #431407 100%)" },
   { id: "arang", nama: "Arang", css: "linear-gradient(160deg, #111827 0%, #374151 50%, #0b0f19 100%)" },
 ];
-let latar = { id: "teal", harian: false };
+const LATAR_DEFAULT = "danau";
+let latar = { id: LATAR_DEFAULT, harian: false };
 function normLatar(v) {
   const o = v && typeof v === "object" ? v : {};
-  return { id: LATAR.some((x) => x.id === o.id) ? o.id : "teal", harian: o.harian === true };
+  return { id: LATAR.some((x) => x.id === o.id) ? o.id : LATAR_DEFAULT, harian: o.harian === true };
+}
+// Nilai CSS untuk latar: foto (dengan warna cadangan) atau gradien
+function latarCss(x) {
+  return x.foto ? 'url("' + x.foto + '") center / cover no-repeat' : x.css;
 }
 // Mode harian: satu warna per hari (hari menurut jam lokal), berurutan mengikuti daftar
 function latarAktif() {
@@ -518,7 +527,7 @@ function latarAktif() {
 }
 function terapkanLatar() {
   const a = latarAktif();
-  document.documentElement.style.setProperty("--latar", a.css);
+  document.documentElement.style.setProperty("--latar", latarCss(a));
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
   document.querySelectorAll(".latar-sw").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === a.id)));
@@ -534,7 +543,7 @@ function bangunLatar() {
     b.setAttribute("role", "radio");
     b.title = x.nama;
     b.setAttribute("aria-label", "Latar " + x.nama);
-    b.style.background = x.css;
+    b.style.background = latarCss(x);
     b.addEventListener("click", () => simpanLatar({ id: x.id, harian: false }));
     g.append(b);
   });

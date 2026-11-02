@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset=".55" stop-color="#e07a5f"/>
+      <stop offset="1" stop-color="#f6c28b"/>
+    </linearGradient>
+    <radialGradient id="cahaya" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff3c4" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#fff3c4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#langit)"/>
+  <circle cx="1150" cy="560" r="280" fill="url(#cahaya)"/>
+  <circle cx="1150" cy="560" r="90" fill="#fff1c1"/>
+  <path d="M0 620 L180 470 L320 560 L520 380 L700 560 L860 430 L1040 600 L1220 440 L1400 580 L1600 470 L1600 1000 L0 1000Z" fill="#8a7fa6"/>
+  <path d="M0 700 L220 560 L400 680 L600 520 L800 690 L1000 540 L1200 700 L1420 570 L1600 680 L1600 1000 L0 1000Z" fill="#5b5a84"/>
+  <path d="M0 800 L260 690 L480 790 L760 660 L1000 800 L1260 700 L1600 820 L1600 1000 L0 1000Z" fill="#3a3d63"/>
+  <path d="M0 900 L300 820 L620 900 L940 830 L1280 910 L1600 850 L1600 1000 L0 1000Z" fill="#20243f"/>
+</svg>
