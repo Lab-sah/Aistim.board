@@ -497,6 +497,9 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) tick
 const jamCanvas = $("jam-canvas");
 const jamCtx = jamCanvas.getContext("2d");
 let jamS = 0, jamDpr = 1, jamTimer = 0;
+const jamLogo = new Image();
+jamLogo.src = "icons/icon128.png";
+jamLogo.onload = () => gambarJam(new Date());
 function jamUkur() {
   const r = jamCanvas.getBoundingClientRect();
   jamS = Math.max(120, Math.round(r.width));
@@ -543,6 +546,15 @@ function gambarJam(d) {
   for (let i = 1; i <= 12; i++) {
     const a = (i * Math.PI) / 6 - Math.PI / 2;
     c.fillText(String(i), cx + Math.cos(a) * R * 0.68, cy + Math.sin(a) * R * 0.68);
+  }
+  if (jamLogo.complete && jamLogo.naturalWidth) { // logo Aistim di tengah wajah jam, jarum digambar di atasnya
+    const u = s * 0.3;
+    c.save();
+    c.beginPath();
+    c.arc(cx, cy, u / 2, 0, Math.PI * 2);
+    c.clip();
+    c.drawImage(jamLogo, cx - u / 2, cy - u / 2, u, u);
+    c.restore();
   }
   const detik = d.getSeconds(), menit = d.getMinutes() + detik / 60, jam = (d.getHours() % 12) + menit / 60;
   jarum(c, cx, cy, (jam * Math.PI) / 6 - Math.PI / 2, R * 0.5, s * 0.035, "#ffffff");
