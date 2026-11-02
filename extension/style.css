@@ -110,9 +110,10 @@ body {
 
 
 /* Daftar menu di sisi belakang: tabel (ikon, nama, link, aksi) */
-.tabel-wrap { overflow-x: auto; margin: 0 0 12px; }
+.tabel-wrap { overflow: auto; max-height: clamp(180px, 38vh, 300px); overscroll-behavior: contain; margin: 0 0 12px; }
 .tabel-wrap[hidden] { display: none; }
 .tabel { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+.tabel thead th { position: sticky; top: 0; z-index: 1; padding-top: 4px; background: rgba(17, 24, 39, 0.92); }
 .tabel th { padding: 0 6px 6px; text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.65; }
 .tabel td { padding: 6px; border-top: 1px solid rgba(255, 255, 255, 0.12); vertical-align: middle; }
 .tabel tbody tr:hover td { background: rgba(255, 255, 255, 0.06); }
