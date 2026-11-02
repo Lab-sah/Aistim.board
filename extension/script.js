@@ -505,6 +505,9 @@ const LATAR = [
   { id: "hutan", nama: "Hutan kabut", foto: "bg/hutan-kabut.svg" },
   { id: "pantai", nama: "Pantai senja", foto: "bg/pantai-senja.svg" },
   { id: "malam", nama: "Malam berbintang", foto: "bg/malam-bintang.svg" },
+  // Foto dengan gelembung yang naik pelan di atasnya (flag "gelembung")
+  { id: "akuarium", nama: "Akuarium", foto: "bg/akuarium.jpg", gelembung: true },
+  { id: "musim-gugur", nama: "Hutan musim gugur", foto: "bg/hutan-musim-gugur.jpg", gelembung: true },
   // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
   { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
@@ -611,10 +614,85 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && fxAktif && !fxRaf) fxRaf = requestAnimationFrame(fxFrame);
 });
 
+// ---------- Gelembung: gelembung naik pelan di atas foto, sebagian bergoyang ke samping ----------
+const gel = $("gel");
+const gelCtx = gel.getContext("2d");
+const gelGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let gelAktif = false, gelRaf = 0, gelW = 0, gelH = 0, gelDpr = 1, gelLast = 0;
+let gelembung = [];
+// Satu gelembung (ukuran dalam piksel CSS). acak = true saat awal, supaya tidak semua muncul dari bawah sekaligus
+function gelBuat(acak) {
+  const b = { r: 0, x: 0, y: 0, v: 0, ph: Math.random() * 6.283, fr: 0.5 + Math.random() * 0.8, amp: 4 + Math.random() * 12 };
+  gelUlang(b, acak);
+  return b;
+}
+function gelUlang(b, acak) {
+  b.r = 4 + Math.random() * 14;
+  b.x = Math.random() * innerWidth;
+  b.y = acak ? Math.random() * innerHeight : innerHeight + b.r + Math.random() * 60;
+  b.v = (16 + Math.random() * 34) * (gelGerak ? 1 : 0.3); // piksel per detik
+}
+function gelUkuran() {
+  gelDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  gelW = Math.round(innerWidth * gelDpr);
+  gelH = Math.round(innerHeight * gelDpr);
+  gel.width = gelW;
+  gel.height = gelH;
+  const n = Math.min(40, Math.max(12, Math.round((innerWidth * innerHeight) / 26000)));
+  gelembung = Array.from({ length: n }, () => gelBuat(true));
+}
+function gelGambar(now) {
+  const dt = gelLast ? Math.min(0.05, (now - gelLast) / 1000) : 0;
+  gelLast = now;
+  gelCtx.clearRect(0, 0, gelW, gelH);
+  const t = now / 1000;
+  for (const b of gelembung) {
+    b.y -= b.v * dt;
+    if (b.y + b.r < -10) gelUlang(b, false);
+    const x = b.x + (gelGerak ? Math.sin(t * b.fr + b.ph) * b.amp : 0);
+    const cx = x * gelDpr, cy = b.y * gelDpr, rr = b.r * gelDpr;
+    gelCtx.beginPath();
+    gelCtx.arc(cx, cy, rr, 0, Math.PI * 2);
+    gelCtx.fillStyle = "rgba(255,255,255,0.10)";
+    gelCtx.fill();
+    gelCtx.lineWidth = Math.max(1, rr * 0.12);
+    gelCtx.strokeStyle = "rgba(255,255,255,0.5)";
+    gelCtx.stroke();
+    gelCtx.beginPath(); // kilau kecil di sisi kiri atas
+    gelCtx.arc(cx - rr * 0.38, cy - rr * 0.38, rr * 0.22, 0, Math.PI * 2);
+    gelCtx.fillStyle = "rgba(255,255,255,0.7)";
+    gelCtx.fill();
+  }
+}
+function gelFrame(now) {
+  gelRaf = 0;
+  if (!gelAktif || document.hidden) return;
+  gelGambar(now);
+  gelRaf = requestAnimationFrame(gelFrame);
+}
+function gelNyala(on) {
+  if (on === gelAktif) return;
+  gelAktif = on;
+  gel.hidden = !on;
+  if (on) {
+    gelUkuran();
+    gelLast = 0;
+    if (!gelRaf && !document.hidden) gelRaf = requestAnimationFrame(gelFrame);
+  } else if (gelRaf) {
+    cancelAnimationFrame(gelRaf);
+    gelRaf = 0;
+  }
+}
+window.addEventListener("resize", () => { if (gelAktif) gelUkuran(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && gelAktif && !gelRaf) gelRaf = requestAnimationFrame(gelFrame);
+});
+
 function terapkanLatar() {
   const a = latarAktif();
   document.documentElement.style.setProperty("--latar", latarCss(a));
   fxNyala(!!a.animasi);
+  gelNyala(!!a.gelembung);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
   document.querySelectorAll(".latar-sw").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === a.id)));
