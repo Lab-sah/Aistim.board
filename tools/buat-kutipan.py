@@ -9,7 +9,7 @@ import sys
 import urllib.request
 
 # Model dicoba berurutan. Model berikutnya dipakai hanya bila model sebelumnya membalas 404 (tidak dikenali).
-MODELS = [m for m in [os.environ.get("GEMINI_MODEL", ""), "gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash"] if m]
+MODELS = [m for m in [os.environ.get("GEMINI_MODEL", ""), "gemini-3.5-flash-lite", "gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash"] if m]
 BASE = os.environ.get("KUTIPAN_API", "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent")
 KEY = os.environ.get("GEMINI_API_KEY", "")
 PROMPT = (
