@@ -66,7 +66,7 @@ body {
 .pins-kosong[hidden], .pin-list[hidden] { display: none; }
 
 /* Sisi depan: tile menu + tile "Tambahkan baru" */
-.pin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 14px 8px; }
+.pin-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 8px; } /* HP: 4 kolom */
 .pin {
   display: flex;
   flex-direction: column;
@@ -205,9 +205,10 @@ dialog button[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) { .flip-in, .face { transition: none; } }
 @media (min-width: 768px) {
-  .jam, .pins, .upd-pill { max-width: 600px; }
+  .jam, .pins, .upd-pill { max-width: 960px; }
+  .pin-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } /* desktop: 8 kolom */
   .pin-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 260px; }
 }
 @media (max-width: 360px) {
-  .pin-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px 4px; }
+  .pin-grid { gap: 10px 4px; }
 }
