@@ -486,13 +486,75 @@ const QUOTES = [
 // Jam 24 jam, diperbarui tepat di pergantian menit (dan saat tab kembali terlihat)
 function tick() {
   const now = new Date();
-  $("clock").textContent = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  $("jam-canvas").setAttribute("aria-label", "Pukul " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }));
   $("date").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   if (latar.harian) terapkanLatar(); // ganti warna saat hari berganti
   clearTimeout(tick.t);
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+// ---------- Jam analog: digambar di canvas, diperbarui tiap detik ----------
+const jamCanvas = $("jam-canvas");
+const jamCtx = jamCanvas.getContext("2d");
+let jamS = 0, jamDpr = 1, jamTimer = 0;
+function jamUkur() {
+  const r = jamCanvas.getBoundingClientRect();
+  jamS = Math.max(120, Math.round(r.width));
+  jamDpr = Math.min(window.devicePixelRatio || 1, 2);
+  jamCanvas.width = Math.round(jamS * jamDpr);
+  jamCanvas.height = Math.round(jamS * jamDpr);
+}
+// Satu jarum: dari pusat ke arah sudut a (radian, 0 = jam 12)
+function jarum(c, cx, cy, a, panjang, lebar, warna) {
+  c.beginPath();
+  c.moveTo(cx, cy);
+  c.lineTo(cx + Math.cos(a) * panjang, cy + Math.sin(a) * panjang);
+  c.lineCap = "round";
+  c.lineWidth = lebar;
+  c.strokeStyle = warna;
+  c.stroke();
+}
+function gambarJam(d) {
+  const c = jamCtx, s = jamS, cx = s / 2, cy = s / 2, R = s / 2 - 4;
+  if (!s) return;
+  c.setTransform(jamDpr, 0, 0, jamDpr, 0, 0);
+  c.clearRect(0, 0, s, s);
+  c.beginPath();
+  c.arc(cx, cy, R, 0, Math.PI * 2);
+  c.fillStyle = "rgba(255,255,255,0.08)";
+  c.fill();
+  c.lineWidth = Math.max(1.5, s * 0.012);
+  c.strokeStyle = "rgba(255,255,255,0.35)";
+  c.stroke();
+  for (let i = 0; i < 12; i++) { // tanda jam: 12 garis, yang di 12, 3, 6, 9 lebih tebal
+    const a = (i * Math.PI) / 6 - Math.PI / 2, besar = i % 3 === 0;
+    c.beginPath();
+    c.moveTo(cx + Math.cos(a) * R * (besar ? 0.8 : 0.87), cy + Math.sin(a) * R * (besar ? 0.8 : 0.87));
+    c.lineTo(cx + Math.cos(a) * R * 0.95, cy + Math.sin(a) * R * 0.95);
+    c.lineCap = "round";
+    c.lineWidth = besar ? s * 0.03 : s * 0.015;
+    c.strokeStyle = "rgba(255,255,255,0.9)";
+    c.stroke();
+  }
+  const detik = d.getSeconds(), menit = d.getMinutes() + detik / 60, jam = (d.getHours() % 12) + menit / 60;
+  jarum(c, cx, cy, (jam * Math.PI) / 6 - Math.PI / 2, R * 0.5, s * 0.035, "#ffffff");
+  jarum(c, cx, cy, (menit * Math.PI) / 30 - Math.PI / 2, R * 0.75, s * 0.022, "#ffffff");
+  jarum(c, cx, cy, (detik * Math.PI) / 30 - Math.PI / 2, R * 0.85, s * 0.01, "#fca5a5");
+  c.beginPath();
+  c.arc(cx, cy, s * 0.03, 0, Math.PI * 2);
+  c.fillStyle = "#fca5a5";
+  c.fill();
+}
+// Digambar tepat di setiap pergantian detik (cukup murah, tidak perlu 60 fps)
+function jamLoop() {
+  clearTimeout(jamTimer);
+  const d = new Date();
+  gambarJam(d);
+  jamTimer = setTimeout(jamLoop, 1000 - (d.getTime() % 1000) + 5);
+}
+window.addEventListener("resize", () => { jamUkur(); jamLoop(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) jamLoop(); });
+
 // Satu kata-kata per hari (hari menurut jam lokal), berganti tiap tengah malam
 function initQuote() {
   const d = new Date();
@@ -1093,6 +1155,8 @@ function labelVersi() {
   }
 }
 async function mulai() {
+  jamUkur();
+  jamLoop();
   tick();
   initQuote();
   const tersimpan = await store.get("pins", []);

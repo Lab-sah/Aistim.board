@@ -30,7 +30,7 @@ body {
 
 /* Kartu atas: jam dan kata-kata */
 .jam { padding: 18px 20px 20px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); text-align: center; }
-.clock { font-size: clamp(52px, 17vw, 72px); font-weight: 300; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.jam-canvas { display: block; width: clamp(170px, 56vw, 260px); height: auto; aspect-ratio: 1 / 1; margin: 0 auto 4px; }
 .date { margin-top: 4px; font-size: 15px; opacity: 0.85; }
 .quote { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
 .quote blockquote { margin: 0; font-size: 16px; font-style: italic; line-height: 1.45; }
