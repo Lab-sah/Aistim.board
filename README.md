@@ -2,7 +2,7 @@
 
 Extension Chrome yang mengganti halaman **tab baru** dengan dua kartu: **jam dan kata-kata** di atas, lalu kartu **Menu** berisi pintasan ke situs yang sering dibuka, dengan tile **+** untuk menambah menu.
 
-Versi lama (dengan jam, kutipan, Aistim.sync, dan menu bersama bertanda tangan) ada di branch [`main-v1`](../../tree/main-v1).
+Versi lama (dengan jam, kutipan, Aistim.sync, dan menu bersama bertanda tangan) ada di tag [`v0.26.0`](../../tree/v0.26.0).
 
 ## Fitur
 
@@ -24,10 +24,12 @@ Versi lama (dengan jam, kutipan, Aistim.sync, dan menu bersama bertanda tangan) 
   - Entri yang salah (tanpa link, link bukan `http`/`https`, link kembar) dilewati dan alasannya ditulis di status; file yang bukan JSON sah (mis. koma berlebih di akhir) ditolak seluruhnya dengan pesan galat, dan tab tetap memakai salinan terakhir yang berhasil.
   - Tab membaca file saat dibuka, paling sering sekali tiap 5 menit (GitHub sendiri menyimpan salinan file mentah sampai 5 menit). Tombol **Segarkan** menembus salinan itu supaya hasil edit langsung terlihat. Salinan terakhir disimpan di browser untuk dipakai offline.
   - **Keamanan**: file ini tidak ditandatangani, jadi siapa pun yang bisa mengubah `main.json` di repo menentukan menu semua pengguna. Karena itu isinya divalidasi ketat (hanya link `http`/`https`, ditampilkan sebagai teks biasa, tidak pernah dijalankan sebagai kode) dan link hanya terbuka bila pengguna mengetuknya. Jaga akses tulis ke repo ini.
+- **Latar** (sisi belakang kartu **Atur**, baris **Latar**): pilih salah satu dari beberapa pemandangan (danau senja, gunung pagi, hutan kabut, pantai senja, malam berbintang), dua foto (akuarium dan hutan musim gugur), atau gradien warna. Pilihan **Ganti otomatis tiap hari** membuat warnanya berurutan mengikuti hari. Pilihan panah keyboard juga bisa dipakai.
+- **Animasi**: latar **Gelombang** menampilkan warna mesh yang bergerak pelan dan riak cahaya di setiap klik. Foto akuarium dan hutan musim gugur menampilkan gelembung yang naik pelan. Keduanya dibatasi 30 fps dan turun ke 10 fps setelah 10 detik tanpa sentuhan. Gerakan dimatikan bila sistem meminta pengurangan animasi.
 - **Buka**: ketuk tile membuka link di **tab baru**; halaman menu tetap terbuka.
 - **Ubah dan hapus** ada di sisi belakang kartu: ketuk **Atur** (kartu berbalik), lalu **Ubah** atau **Hapus** per baris (hapus meminta konfirmasi), **Selesai** atau Escape untuk kembali. Sisi depan tidak punya tombol edit.
 - **Ikon otomatis** dari favicon situs lewat Google. Yang dikirim hanya nama **domain induk** (`trial.erzap.com` menjadi `erzap.com`, `shop.example.co.id` menjadi `example.co.id`), tanpa subdomain, path, atau query, dan baru setelah kolom link selesai diisi. Host pribadi (tanpa titik, alamat IP, `localhost`, `.local`, `.lan`, dan sejenisnya) tidak pernah dikirim. Bila gagal dimuat dipakai huruf pertama nama. Di **Ikon sendiri (opsional)** bisa diisi emoji atau huruf sebagai ganti favicon.
-- **Pembaruan**: saat tab dibuka (paling sering sekali tiap 6 jam) extension memeriksa rilis terbaru di GitHub (`api.github.com/repos/Lab-sah/Aistim.board/releases/latest`, tanpa token, tanpa cookie, tanpa data pribadi). Bila ada versi yang lebih baru dari yang terpasang, muncul tombol biru **Versi baru vX tersedia · Unduh** di atas kartu jam; ketuk untuk mengunduh `Aistim-Board-<versi>.zip` di tab baru. Di sisi belakang kartu (**Atur**) ada tombol **Periksa pembaruan**, tombol **Unduh vX**, dan kotak **Periksa otomatis saat tab dibuka** untuk mematikan pemeriksaan otomatis (pemeriksaan manual tetap bisa). Extension tidak memasang apa pun sendiri: ekstrak zip ke folder yang sama lalu tekan ⟳ di halaman Ekstensi. Nomor versi dari GitHub divalidasi ketat (`vX.Y.Z`, zip harus ada di rilis) dan tautan unduhan dibangun dari nomor itu, bukan diambil dari isi balasan. Tidak butuh izin situs: GitHub mengizinkan permintaan lintas-asal untuk API-nya.
+- **Pembaruan**: saat tab dibuka (paling sering sekali tiap 6 jam) extension memeriksa rilis terbaru di GitHub (`api.github.com/repos/Lab-sah/Aistim.board/releases/latest`, tanpa token, tanpa cookie, tanpa data pribadi). Bila ada versi yang lebih baru dari yang terpasang, muncul tombol biru **Versi baru vX tersedia · Unduh** di atas kartu jam; ketuk untuk mengunduh `Aistim-board-<versi>.zip` di tab baru. Di sisi belakang kartu (**Atur**) ada tombol **Periksa pembaruan**, tombol **Unduh vX**, dan kotak **Periksa otomatis saat tab dibuka** untuk mematikan pemeriksaan otomatis (pemeriksaan manual tetap bisa). Extension tidak memasang apa pun sendiri: ekstrak zip ke folder yang sama lalu tekan ⟳ di halaman Ekstensi. Nomor versi dari GitHub divalidasi ketat (`vX.Y.Z`, zip harus ada di rilis) dan tautan unduhan dibangun dari nomor itu, bukan diambil dari isi balasan. Tidak butuh izin situs: GitHub mengizinkan permintaan lintas-asal untuk API-nya.
 - **Responsif**: 320 px sampai desktop; mengikuti `prefers-reduced-motion`.
 - Perubahan di satu tab baru ikut tampil di tab baru lain yang sedang terbuka.
 
@@ -46,7 +48,7 @@ ID ini juga tampil di sisi belakang kartu (Atur). Data menu tersimpan per ID, ja
 
 ## Memasang
 
-1. Unduh `Aistim-Board-<versi>.zip` dari [Releases](../../releases) lalu ekstrak.
+1. Unduh `Aistim-board-<versi>.zip` dari [Releases](../../releases) lalu ekstrak.
 2. Buka `chrome://extensions`, aktifkan **Mode pengembang**, pilih **Load unpacked**, dan tunjuk folder hasil ekstrak (yang berisi `manifest.json`).
 3. Buka tab baru.
 
@@ -54,11 +56,11 @@ Memperbarui: bila muncul tombol **Versi baru … Unduh**, ketuk untuk mengunduh;
 
 ## Data
 
-Menu pribadi tersimpan di browser (`chrome.storage.local`, kunci `pins`: `id`, `nama`, `href`, `ikon`); salinan terakhir menu bersama di kunci `menuV`. Tidak ada akun dan tidak ada server. Lihat [PRIVACY.md](PRIVACY.md).
+Menu pribadi tersimpan di browser (`chrome.storage.local`, kunci `pins`: `id`, `nama`, `href`, `ikon`); salinan terakhir menu bersama di kunci `menuV`, dan pilihan latar di kunci `latar`. Tidak ada akun dan tidak ada server. Lihat [PRIVACY.md](PRIVACY.md).
 
 ## Struktur
 
-- `extension/`: `manifest.json`, `newtab.html`, `script.js`, `style.css`, `icons/`
+- `extension/`: `manifest.json`, `newtab.html`, `script.js`, `style.css`, `icons/`, `bg/` (pemandangan SVG dan dua foto JPG; semuanya lokal, tanpa permintaan jaringan)
 - `main.json`: daftar menu bersama (diedit lewat GitHub; perubahannya tidak memicu rilis baru)
 - `tools/id-extension.py`: pemeriksa ID tetap
-- `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Aistim-Board-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)
+- `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Aistim-board-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)

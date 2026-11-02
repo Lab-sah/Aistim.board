@@ -4,7 +4,7 @@ Aistim Board tidak punya akun, server, analitik, atau iklan, dan tidak mengirim 
 
 ## Data yang disimpan di perangkatmu
 
-Hanya di browser ini (`chrome.storage.local`): daftar menu pintasan yang kamu isi sendiri (nama, link, ikon emoji/huruf bila diisi, dan id yang diturunkan dari link), hasil pemeriksaan pembaruan terakhir (nomor versi dan waktu), salinan terakhir menu bersama dari `main.json`, dan pilihan Periksa otomatis. Menghapus extension atau datanya dari pengaturan browser menghapus semuanya.
+Hanya di browser ini (`chrome.storage.local`): pilihan latar halaman (kunci `latar`, hanya nama latar dan mode harian), daftar menu pintasan yang kamu isi sendiri (nama, link, ikon emoji/huruf bila diisi, dan id yang diturunkan dari link), hasil pemeriksaan pembaruan terakhir (nomor versi dan waktu), salinan terakhir menu bersama dari `main.json`, dan pilihan Periksa otomatis. Menghapus extension atau datanya dari pengaturan browser menghapus semuanya.
 
 ## Koneksi jaringan
 
