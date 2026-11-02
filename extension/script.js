@@ -251,9 +251,6 @@ function renderPins() {
   semua.forEach(([p, bersama]) => l.append(pinBaris(p, bersama)));
   $("pin-wrap").hidden = !semua.length;
   $("pin-kosong").hidden = semua.length > 0;
-  const penuh = pins.length >= MAX_PIN;
-  $("pin-tambah").disabled = penuh;
-  $("pin-tambah").textContent = penuh ? "Maksimal " + MAX_PIN + " menu" : "+ Tambah menu";
 }
 
 // Kartu berbalik: depan = menu untuk dibuka, belakang = atur (tambah, ubah, hapus)
@@ -274,12 +271,11 @@ function putar(belakang) {
   flipKartu.classList.toggle("balik", belakang);
   ukurKartu();
   $("btn-flip").setAttribute("aria-expanded", String(belakang));
-  if (belakang) $("pin-tambah").focus({ preventScroll: true });
+  if (belakang) $("btn-flip-balik").focus({ preventScroll: true });
   else setTimeout(() => $("btn-flip").focus({ preventScroll: true }), 320); // sisi depan baru terlihat setelah setengah putaran
 }
 $("btn-flip").addEventListener("click", () => putar(true));
 $("btn-flip-balik").addEventListener("click", () => putar(false));
-$("pin-tambah").addEventListener("click", () => openPin(null));
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && flipKartu.classList.contains("balik") && !document.querySelector("dialog[open]")) putar(false);
 });
