@@ -377,7 +377,7 @@ $("pin-del").addEventListener("click", async () => {
 // File main.json di repo (cabang main) diedit lewat GitHub dan tampil sebagai menu bersama untuk semua yang memasang
 // extension ini. Hanya dibaca dan divalidasi ketat (hanya link http/https, tampil sebagai teks biasa). Tidak ada tanda
 // tangan, jadi siapa pun yang boleh mengubah file itu di repo ikut menentukan menunya.
-const MENU_URL = "https://raw.githubusercontent.com/devtim-lab/Aistim.board/main/main.json";
+const MENU_URL = "https://raw.githubusercontent.com/Lab-sah/Aistim.board/main/main.json";
 const MENU_JEDA = 5 * 60 * 1000; // GitHub menyimpan salinan file mentah sampai 5 menit
 const MAX_V = 48;
 let pinsV = []; // menu bersama dari main.json: [{ id, nama, href, ikon }]
@@ -723,8 +723,8 @@ async function simpanLatar(next) {
 // ---------- Pembaruan ----------
 // Memeriksa rilis terbaru di GitHub (tanpa token, tanpa data pribadi) dan menautkan unduhan zip-nya. Tidak memasang apa pun
 // sendiri. Tautan unduhan dibangun dari nomor versi yang sudah divalidasi, bukan diambil dari isi balasan GitHub.
-const UPD_API = "https://api.github.com/repos/devtim-lab/Aistim.board/releases/latest";
-const UPD_DL = "https://github.com/devtim-lab/Aistim.board/releases/download/";
+const UPD_API = "https://api.github.com/repos/Lab-sah/Aistim.board/releases/latest";
+const UPD_DL = "https://github.com/Lab-sah/Aistim.board/releases/download/";
 const UPD_JEDA = 6 * 60 * 60 * 1000; // pemeriksaan otomatis paling sering tiap 6 jam
 let upd = null; // hasil pemeriksaan terakhir: { t, v, url }
 const verAngka = (v) => (typeof v === "string" && /^\d{1,4}\.\d{1,4}\.\d{1,4}$/.test(v) ? v.split(".").map(Number) : null);
