@@ -536,6 +536,14 @@ function gambarJam(d) {
     c.strokeStyle = "rgba(255,255,255,0.9)";
     c.stroke();
   }
+  c.font = "500 " + Math.round(s * 0.1) + "px system-ui, -apple-system, sans-serif"; // angka jam 1 sampai 12
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillStyle = "rgba(255,255,255,0.95)";
+  for (let i = 1; i <= 12; i++) {
+    const a = (i * Math.PI) / 6 - Math.PI / 2;
+    c.fillText(String(i), cx + Math.cos(a) * R * 0.68, cy + Math.sin(a) * R * 0.68);
+  }
   const detik = d.getSeconds(), menit = d.getMinutes() + detik / 60, jam = (d.getHours() % 12) + menit / 60;
   jarum(c, cx, cy, (jam * Math.PI) / 6 - Math.PI / 2, R * 0.5, s * 0.035, "#ffffff");
   jarum(c, cx, cy, (menit * Math.PI) / 30 - Math.PI / 2, R * 0.75, s * 0.022, "#ffffff");
