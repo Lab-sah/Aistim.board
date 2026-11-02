@@ -803,43 +803,72 @@ function gelGambar(now) {
   if (ikanOn) ikanGambar(t, dt);
 }
 let gelLastDraw = -Infinity;
-// ---------- Ikan neon kartun: berenang ke kiri dan kanan di atas foto akuarium ----------
-function ikanBaru(acak) {
-  const arah = Math.random() < 0.5 ? 1 : -1;
+// ---------- Ikan neon kartun: berenang di atas foto akuarium, arah acak, mendekati kursor bila ada ----------
+let kursor = null; // { x, y, t }: posisi kursor atau sentuhan terakhir (piksel CSS)
+["pointermove", "pointerdown"].forEach((ev) => window.addEventListener(ev, (e) => { kursor = { x: e.clientX, y: e.clientY, t: performance.now() }; }, { passive: true }));
+const KURSOR_AKTIF = 3000; // ms: setelah tidak ada gerakan, ikan kembali berkeliling sendiri
+function ikanBaru() {
+  const sudut = Math.random() * Math.PI * 2, v = (18 + Math.random() * 30) * (gelGerak ? 1 : 0.3);
   return {
-    x: acak ? Math.random() * innerWidth : arah > 0 ? -40 : innerWidth + 40,
+    x: Math.random() * innerWidth,
     y: innerHeight * (0.28 + Math.random() * 0.6),
-    arah,
-    v: (18 + Math.random() * 30) * (gelGerak ? 1 : 0.3),
+    vx: Math.cos(sudut) * v,
+    vy: Math.sin(sudut) * v * 0.4,
     p: 16 + Math.random() * 12,
     ph: Math.random() * 6.283,
     biru: Math.random() < 0.5,
+    hadap: Math.random() < 0.5 ? 1 : -1,
   };
 }
 function ikanBuat() {
   const n = Math.min(10, Math.max(4, Math.round((innerWidth * innerHeight) / 160000)));
-  ikan = Array.from({ length: n }, () => ikanBaru(true));
+  ikan = Array.from({ length: n }, () => ikanBaru());
 }
 function ikanGambar(t, dt) {
-  const c = gelCtx;
+  const c = gelCtx, now = performance.now();
+  const kejar = kursor && now - kursor.t < KURSOR_AKTIF;
+  const kecepatanMaks = (kejar ? 90 : 45) * (gelGerak ? 1 : 0.3);
   for (const f of ikan) {
-    f.x += f.arah * f.v * dt;
-    f.y += Math.sin(t * 0.7 + f.ph) * 0.12;
-    if ((f.arah > 0 && f.x > innerWidth + 50) || (f.arah < 0 && f.x < -50)) Object.assign(f, ikanBaru(false));
+    if (kejar) {
+      const dx = kursor.x - f.x, dy = kursor.y - f.y, jarak = Math.hypot(dx, dy) || 1;
+      if (jarak > 40) { // belok halus menuju kursor
+        const k = Math.min(1, dt * 2.2);
+        f.vx += ((dx / jarak) * kecepatanMaks - f.vx) * k;
+        f.vy += ((dy / jarak) * kecepatanMaks * 0.6 - f.vy) * k;
+      }
+    } else if (Math.random() < dt * 0.5) { // sesekali ganti arah secara acak
+      const sudut = Math.random() * Math.PI * 2, v = Math.hypot(f.vx, f.vy) || 30;
+      f.vx = Math.cos(sudut) * v;
+      f.vy = Math.sin(sudut) * v * 0.4;
+    }
+    const sp = Math.hypot(f.vx, f.vy);
+    if (sp < 12) { // jangan sampai diam
+      const sudut = Math.random() * Math.PI * 2;
+      f.vx = Math.cos(sudut) * 15;
+      f.vy = Math.sin(sudut) * 6;
+    } else if (sp > kecepatanMaks) {
+      f.vx *= kecepatanMaks / sp;
+      f.vy *= kecepatanMaks / sp;
+    }
+    f.x += f.vx * dt;
+    f.y += f.vy * dt + Math.sin(t * 0.7 + f.ph) * 0.1;
+    if (f.x < -50) f.x = innerWidth + 50; // keluar di satu sisi, muncul di sisi lain
+    else if (f.x > innerWidth + 50) f.x = -50;
+    if (f.y < innerHeight * 0.2) { f.y = innerHeight * 0.2; f.vy = Math.abs(f.vy); }
+    if (f.y > innerHeight * 0.9) { f.y = innerHeight * 0.9; f.vy = -Math.abs(f.vy); }
+    if (Math.abs(f.vx) > 4) f.hadap = f.vx > 0 ? 1 : -1; // menghadap arah gerak
     const L = f.p * gelDpr, ry = L * 0.28, ekor = Math.sin(t * 9 + f.ph) * L * 0.18;
     c.save();
     c.translate(f.x * gelDpr, f.y * gelDpr);
-    c.scale(f.arah, 1);
-    // ekor bergoyang
-    c.beginPath();
+    c.scale(f.hadap, 1);
+    c.beginPath(); // ekor bergoyang
     c.moveTo(-L * 0.45, 0);
     c.lineTo(-L * 0.9, -L * 0.35 + ekor);
     c.lineTo(-L * 0.9, L * 0.35 + ekor);
     c.closePath();
     c.fillStyle = f.biru ? "#ef4444" : "#38bdf8";
     c.fill();
-    // badan: atas biru, bawah merah (neon tetra)
-    const g = c.createLinearGradient(0, -ry, 0, ry);
+    const g = c.createLinearGradient(0, -ry, 0, ry); // badan: atas biru, bawah merah (neon tetra)
     g.addColorStop(0, f.biru ? "#38bdf8" : "#ef4444");
     g.addColorStop(0.5, "#e2e8f0");
     g.addColorStop(1, f.biru ? "#ef4444" : "#38bdf8");
@@ -847,15 +876,13 @@ function ikanGambar(t, dt) {
     c.ellipse(0, 0, L * 0.5, ry, 0, 0, Math.PI * 2);
     c.fillStyle = g;
     c.fill();
-    // garis neon di sepanjang badan
-    c.beginPath();
+    c.beginPath(); // garis neon
     c.moveTo(-L * 0.42, -ry * 0.1);
     c.lineTo(L * 0.3, -ry * 0.1);
     c.lineWidth = Math.max(1, L * 0.07);
     c.strokeStyle = f.biru ? "#7dd3fc" : "#fca5a5";
     c.stroke();
-    // mata
-    c.beginPath();
+    c.beginPath(); // mata
     c.arc(L * 0.3, -ry * 0.25, Math.max(1, L * 0.06), 0, Math.PI * 2);
     c.fillStyle = "#0f172a";
     c.fill();
