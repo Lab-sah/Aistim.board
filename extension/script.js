@@ -625,7 +625,7 @@ const LATAR = [
   { id: "pantai", nama: "Pantai senja", foto: "bg/pantai-senja.svg" },
   { id: "malam", nama: "Malam berbintang", foto: "bg/malam-bintang.svg" },
   // Foto dengan gelembung yang naik pelan di atasnya (flag "gelembung")
-  { id: "akuarium", nama: "Akuarium", foto: "bg/akuarium.jpg", gelembung: true },
+  { id: "akuarium", nama: "Akuarium", foto: "bg/akuarium.jpg", gelembung: true, ikan: true },
   { id: "musim-gugur", nama: "Hutan musim gugur", foto: "bg/hutan-musim-gugur.jpg", gelembung: true },
   // Adegan yang digambar di canvas dan bergerak
   { id: "hujan", nama: "Hujan kota", css: "linear-gradient(160deg, #0b1220 0%, #1b2638 50%, #2a3a52 100%)", adegan: "hujan" },
@@ -754,6 +754,8 @@ const gelCtx = gel.getContext("2d");
 const gelGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 let gelAktif = false, gelRaf = 0, gelW = 0, gelH = 0, gelDpr = 1, gelLast = 0;
 let gelembung = [];
+let ikanOn = false; // ikan neon kartun yang berenang di atas foto akuarium
+let ikan = [];
 // Satu gelembung (ukuran dalam piksel CSS). acak = true saat awal, supaya tidak semua muncul dari bawah sekaligus
 function gelBuat(acak) {
   const b = { r: 0, x: 0, y: 0, v: 0, ph: Math.random() * 6.283, fr: 0.5 + Math.random() * 0.8, amp: 4 + Math.random() * 12 };
@@ -774,6 +776,7 @@ function gelUkuran() {
   gel.height = gelH;
   const n = Math.min(60, Math.max(20, Math.round((innerWidth * innerHeight) / 12000)));
   gelembung = Array.from({ length: n }, () => gelBuat(true));
+  if (ikanOn) ikanBuat();
 }
 function gelGambar(now) {
   const dt = gelLast ? Math.min(0.05, (now - gelLast) / 1000) : 0;
@@ -797,8 +800,68 @@ function gelGambar(now) {
     gelCtx.fillStyle = "rgba(255,255,255,0.7)";
     gelCtx.fill();
   }
+  if (ikanOn) ikanGambar(t, dt);
 }
 let gelLastDraw = -Infinity;
+// ---------- Ikan neon kartun: berenang ke kiri dan kanan di atas foto akuarium ----------
+function ikanBaru(acak) {
+  const arah = Math.random() < 0.5 ? 1 : -1;
+  return {
+    x: acak ? Math.random() * innerWidth : arah > 0 ? -40 : innerWidth + 40,
+    y: innerHeight * (0.28 + Math.random() * 0.6),
+    arah,
+    v: (18 + Math.random() * 30) * (gelGerak ? 1 : 0.3),
+    p: 16 + Math.random() * 12,
+    ph: Math.random() * 6.283,
+    biru: Math.random() < 0.5,
+  };
+}
+function ikanBuat() {
+  const n = Math.min(10, Math.max(4, Math.round((innerWidth * innerHeight) / 160000)));
+  ikan = Array.from({ length: n }, () => ikanBaru(true));
+}
+function ikanGambar(t, dt) {
+  const c = gelCtx;
+  for (const f of ikan) {
+    f.x += f.arah * f.v * dt;
+    f.y += Math.sin(t * 0.7 + f.ph) * 0.12;
+    if ((f.arah > 0 && f.x > innerWidth + 50) || (f.arah < 0 && f.x < -50)) Object.assign(f, ikanBaru(false));
+    const L = f.p * gelDpr, ry = L * 0.28, ekor = Math.sin(t * 9 + f.ph) * L * 0.18;
+    c.save();
+    c.translate(f.x * gelDpr, f.y * gelDpr);
+    c.scale(f.arah, 1);
+    // ekor bergoyang
+    c.beginPath();
+    c.moveTo(-L * 0.45, 0);
+    c.lineTo(-L * 0.9, -L * 0.35 + ekor);
+    c.lineTo(-L * 0.9, L * 0.35 + ekor);
+    c.closePath();
+    c.fillStyle = f.biru ? "#ef4444" : "#38bdf8";
+    c.fill();
+    // badan: atas biru, bawah merah (neon tetra)
+    const g = c.createLinearGradient(0, -ry, 0, ry);
+    g.addColorStop(0, f.biru ? "#38bdf8" : "#ef4444");
+    g.addColorStop(0.5, "#e2e8f0");
+    g.addColorStop(1, f.biru ? "#ef4444" : "#38bdf8");
+    c.beginPath();
+    c.ellipse(0, 0, L * 0.5, ry, 0, 0, Math.PI * 2);
+    c.fillStyle = g;
+    c.fill();
+    // garis neon di sepanjang badan
+    c.beginPath();
+    c.moveTo(-L * 0.42, -ry * 0.1);
+    c.lineTo(L * 0.3, -ry * 0.1);
+    c.lineWidth = Math.max(1, L * 0.07);
+    c.strokeStyle = f.biru ? "#7dd3fc" : "#fca5a5";
+    c.stroke();
+    // mata
+    c.beginPath();
+    c.arc(L * 0.3, -ry * 0.25, Math.max(1, L * 0.06), 0, Math.PI * 2);
+    c.fillStyle = "#0f172a";
+    c.fill();
+    c.restore();
+  }
+}
 function gelFrame(now) {
   gelRaf = 0;
   if (!gelAktif || document.hidden) return;
@@ -1049,6 +1112,8 @@ function terapkanLatar() {
   const a = latarAktif();
   document.documentElement.style.setProperty("--latar", latarCss(a));
   fxNyala(!!a.animasi);
+  ikanOn = a.ikan === true;
+  if (ikanOn && !ikan.length) ikanBuat();
   gelNyala(!!a.gelembung);
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
