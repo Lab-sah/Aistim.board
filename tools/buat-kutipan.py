@@ -14,7 +14,7 @@ BASE = os.environ.get("KUTIPAN_API", "https://generativelanguage.googleapis.com/
 KEY = os.environ.get("GEMINI_API_KEY", "")
 PROMPT = (
     "Buat 30 kutipan harian singkat dalam bahasa Indonesia tentang ketenangan, kerja, "
-    "kebiasaan kecil, dan semangat. Setiap kalimat maksimal 120 karakter dan tidak boleh "
+    "kebiasaan kecil, dan semangat. Setiap kalimat maksimal 128 karakter dan tidak boleh "
     "mengutip tokoh nyata. Untuk penulis pakai \"Aistim\" untuk kalimat buatan sendiri, "
     "atau \"Peribahasa\" untuk peribahasa Indonesia yang sudah dikenal. "
     "Jawab hanya dengan JSON array berisi objek {\"text\": \"...\", \"author\": \"...\"}, tanpa teks lain."
@@ -31,7 +31,7 @@ def bersihkan(items):
     for x in items:
         if not isinstance(x, dict):
             continue
-        t = str(x.get("text", "")).strip()[:200]
+        t = str(x.get("text", "")).strip()[:128]
         a = str(x.get("author", "")).strip()[:40]
         if not t or not a or t in sudah:
             continue
