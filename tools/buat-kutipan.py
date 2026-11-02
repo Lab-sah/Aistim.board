@@ -8,7 +8,7 @@ import os
 import sys
 import urllib.request
 
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 API = os.environ.get("KUTIPAN_API", "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % MODEL)
 KEY = os.environ.get("GEMINI_API_KEY", "")
 PROMPT = (
