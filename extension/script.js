@@ -505,6 +505,8 @@ const LATAR = [
   { id: "hutan", nama: "Hutan kabut", foto: "bg/hutan-kabut.svg" },
   { id: "pantai", nama: "Pantai senja", foto: "bg/pantai-senja.svg" },
   { id: "malam", nama: "Malam berbintang", foto: "bg/malam-bintang.svg" },
+  // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
+  { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
   { id: "biru", nama: "Biru malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
   { id: "ungu", nama: "Ungu", css: "linear-gradient(160deg, #2e1065 0%, #6b21a8 50%, #1e1b4b 100%)" },
@@ -525,9 +527,94 @@ function latarAktif() {
   if (latar.harian) return LATAR[Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % LATAR.length];
   return LATAR.find((x) => x.id === latar.id) || LATAR[0];
 }
+// ---------- Latar gelombang: mesh yang bergerak, dan riak di setiap klik ----------
+const fx = $("fx");
+const fxCtx = fx.getContext("2d");
+const fxGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let fxAktif = false, fxRaf = 0, fxW = 0, fxH = 0, fxDpr = 1, fxT0 = 0;
+const riak = []; // { x, y, t } dalam piksel kanvas; t = waktu klik (performance.now)
+// Bola warna mesh: rgb, opasitas, fase awal, dan kecepatan gerak
+const MESH = [
+  { rgb: "34,211,238", a: 0.5, p: 0.0, k: 1.0 },
+  { rgb: "94,234,212", a: 0.38, p: 2.1, k: 0.8 },
+  { rgb: "124,58,237", a: 0.42, p: 4.2, k: 1.2 },
+  { rgb: "14,116,144", a: 0.6, p: 5.3, k: 0.9 },
+];
+function fxUkuran() {
+  fxDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  fxW = Math.round(innerWidth * fxDpr);
+  fxH = Math.round(innerHeight * fxDpr);
+  fx.width = fxW;
+  fx.height = fxH;
+}
+function fxGambar(now) {
+  const W = fxW, H = fxH, s = Math.max(W, H);
+  const t = fxGerak ? now - fxT0 : 0;
+  fxCtx.globalCompositeOperation = "source-over";
+  fxCtx.fillStyle = "#0a4a57";
+  fxCtx.fillRect(0, 0, W, H);
+  for (const b of MESH) {
+    const cx = W * (0.5 + 0.38 * Math.sin(t * 0.00013 * b.k + b.p));
+    const cy = H * (0.5 + 0.34 * Math.cos(t * 0.00011 * b.k + b.p * 1.7));
+    const g = fxCtx.createRadialGradient(cx, cy, 0, cx, cy, s * 0.6);
+    g.addColorStop(0, "rgba(" + b.rgb + "," + b.a + ")");
+    g.addColorStop(1, "rgba(" + b.rgb + ",0)");
+    fxCtx.fillStyle = g;
+    fxCtx.fillRect(0, 0, W, H);
+  }
+  // Riak: cincin cahaya yang melebar dan memudar, dengan cincin kedua yang sedikit tertinggal
+  for (let i = riak.length - 1; i >= 0; i--) {
+    const u = (now - riak[i].t) / 2600;
+    if (u >= 1) { riak.splice(i, 1); continue; }
+    for (const off of [0, 0.14]) {
+      const v = u - off;
+      if (v <= 0) continue;
+      const r = (1 - Math.pow(1 - v, 3)) * s * 0.65;
+      const k = (1 - v) * (off ? 0.5 : 1);
+      const w = 70 * fxDpr;
+      const g = fxCtx.createRadialGradient(riak[i].x, riak[i].y, Math.max(0, r - w), riak[i].x, riak[i].y, r + w);
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop(0.5, "rgba(255,255,255," + (0.28 * k).toFixed(3) + ")");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      fxCtx.fillStyle = g;
+      fxCtx.fillRect(0, 0, W, H);
+    }
+  }
+}
+function fxFrame(now) {
+  fxRaf = 0;
+  if (!fxAktif || document.hidden) return;
+  fxGambar(now);
+  fxRaf = requestAnimationFrame(fxFrame);
+}
+function fxNyala(on) {
+  if (on === fxAktif) return;
+  fxAktif = on;
+  fx.hidden = !on;
+  if (on) {
+    fxUkuran();
+    fxT0 = performance.now();
+    if (!fxRaf && !document.hidden) fxRaf = requestAnimationFrame(fxFrame);
+  } else if (fxRaf) {
+    cancelAnimationFrame(fxRaf);
+    fxRaf = 0;
+  }
+}
+window.addEventListener("pointerdown", (e) => {
+  if (!fxAktif || document.querySelector("dialog[open]")) return;
+  riak.push({ x: e.clientX * fxDpr, y: e.clientY * fxDpr, t: performance.now() });
+  if (riak.length > 12) riak.shift();
+  if (!fxRaf && !document.hidden) fxRaf = requestAnimationFrame(fxFrame);
+});
+window.addEventListener("resize", () => { if (fxAktif) fxUkuran(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && fxAktif && !fxRaf) fxRaf = requestAnimationFrame(fxFrame);
+});
+
 function terapkanLatar() {
   const a = latarAktif();
   document.documentElement.style.setProperty("--latar", latarCss(a));
+  fxNyala(!!a.animasi);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
   document.querySelectorAll(".latar-sw").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === a.id)));

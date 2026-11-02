@@ -10,7 +10,13 @@ body {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35); /* teks di luar kartu tetap terbaca di atas foto yang terang */
 }
 
+/* Latar gelombang: kanvas di belakang seluruh halaman, tidak menangkap klik (klik tetap sampai ke kartu) */
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+.fx[hidden] { display: none; }
+
 .halaman {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
