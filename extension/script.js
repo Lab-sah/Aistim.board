@@ -527,7 +527,7 @@ const LATAR = [
   { id: "ungu", nama: "Ungu", css: "linear-gradient(160deg, #2e1065 0%, #6b21a8 50%, #1e1b4b 100%)" },
   { id: "arang", nama: "Arang", css: "linear-gradient(160deg, #111827 0%, #374151 50%, #0b0f19 100%)" },
 ];
-const LATAR_DEFAULT = "danau";
+const LATAR_DEFAULT = "akuarium";
 let latar = { id: LATAR_DEFAULT, harian: false };
 function normLatar(v) {
   const o = v && typeof v === "object" ? v : {};
@@ -648,7 +648,7 @@ function gelBuat(acak) {
   return b;
 }
 function gelUlang(b, acak) {
-  b.r = 4 + Math.random() * 14;
+  b.r = 5 + Math.random() * 18;
   b.x = Math.random() * innerWidth;
   b.y = acak ? Math.random() * innerHeight : innerHeight + b.r + Math.random() * 60;
   b.v = (16 + Math.random() * 34) * (gelGerak ? 1 : 0.3); // piksel per detik
@@ -659,7 +659,7 @@ function gelUkuran() {
   gelH = Math.round(innerHeight * gelDpr);
   gel.width = gelW;
   gel.height = gelH;
-  const n = Math.min(40, Math.max(12, Math.round((innerWidth * innerHeight) / 26000)));
+  const n = Math.min(60, Math.max(20, Math.round((innerWidth * innerHeight) / 12000)));
   gelembung = Array.from({ length: n }, () => gelBuat(true));
 }
 function gelGambar(now) {
@@ -677,7 +677,7 @@ function gelGambar(now) {
     gelCtx.fillStyle = "rgba(255,255,255,0.10)";
     gelCtx.fill();
     gelCtx.lineWidth = Math.max(1, rr * 0.12);
-    gelCtx.strokeStyle = "rgba(255,255,255,0.5)";
+    gelCtx.strokeStyle = "rgba(255,255,255,0.65)";
     gelCtx.stroke();
     gelCtx.beginPath(); // kilau kecil di sisi kiri atas
     gelCtx.arc(cx - rr * 0.38, cy - rr * 0.38, rr * 0.22, 0, Math.PI * 2);
