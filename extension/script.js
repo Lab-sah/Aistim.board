@@ -194,42 +194,50 @@ function tambahTile() {
   return b;
 }
 function pinBaris(p, bersama) {
-  const li = document.createElement("li");
-  li.className = "baris" + (bersama ? " bersama" : "");
-  const t = document.createElement("span");
-  t.className = "baris-t";
-  const b = document.createElement("b");
-  b.textContent = pinLabel(p);
+  const tr = document.createElement("tr");
+  if (bersama) tr.className = "bersama";
+  const tdIkon = document.createElement("td");
+  tdIkon.className = "td-ikon";
+  tdIkon.append(pinIkon(p));
+  const tdNama = document.createElement("td");
+  tdNama.className = "td-nama";
+  tdNama.textContent = pinLabel(p);
+  tdNama.title = pinLabel(p);
+  const tdLink = document.createElement("td");
+  tdLink.className = "td-link";
   const sm = document.createElement("small");
-  sm.textContent = hostOf(p.href) || p.href;
-  t.append(b, sm);
-  li.append(pinIkon(p), t);
+  sm.textContent = p.href;
+  sm.title = p.href;
+  tdLink.append(sm);
+  const tdAksi = document.createElement("td");
+  tdAksi.className = "td-aksi";
   if (bersama) {
     const k = document.createElement("span");
     k.className = "baris-lencana";
     k.textContent = "main.json";
     k.title = "Menu bersama dari main.json di GitHub; ubah lewat file itu";
-    li.append(k);
-    return li;
+    tdAksi.append(k);
+  } else {
+    const mk = (cls, judul, svg, fn) => {
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "ico2 " + cls;
+      x.title = judul + " " + pinLabel(p);
+      x.setAttribute("aria-label", x.title);
+      x.innerHTML = svg;
+      x.addEventListener("click", fn);
+      return x;
+    };
+    tdAksi.append(
+      mk("ubah", "Ubah", IKON_UBAH, () => openPin(p.id)),
+      mk("hapus", "Hapus", IKON_HAPUS, async () => {
+        const r = await hapusPin(p);
+        if (typeof r === "string") msg(r);
+      })
+    );
   }
-  const mk = (cls, judul, svg, fn) => {
-    const x = document.createElement("button");
-    x.type = "button";
-    x.className = "ico2 " + cls;
-    x.title = judul + " " + pinLabel(p);
-    x.setAttribute("aria-label", x.title);
-    x.innerHTML = svg;
-    x.addEventListener("click", fn);
-    return x;
-  };
-  li.append(
-    mk("ubah", "Ubah", IKON_UBAH, () => openPin(p.id)),
-    mk("hapus", "Hapus", IKON_HAPUS, async () => {
-      const r = await hapusPin(p);
-      if (typeof r === "string") msg(r);
-    })
-  );
-  return li;
+  tr.append(tdIkon, tdNama, tdLink, tdAksi);
+  return tr;
 }
 function renderPins() {
   const sendiri = new Set(pins.map((p) => p.id)); // link yang sama dengan menu pribadi hanya ditampilkan sekali
@@ -241,7 +249,7 @@ function renderPins() {
   const l = $("pin-list");
   l.textContent = "";
   semua.forEach(([p, bersama]) => l.append(pinBaris(p, bersama)));
-  l.hidden = !semua.length;
+  $("pin-wrap").hidden = !semua.length;
   $("pin-kosong").hidden = semua.length > 0;
   const penuh = pins.length >= MAX_PIN;
   $("pin-tambah").disabled = penuh;

@@ -108,6 +108,25 @@ body {
 .pin-ic.plus svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.35; }
 .pin-nm { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; opacity: 0.92; }
 
+
+/* Daftar menu di sisi belakang: tabel (ikon, nama, link, aksi) */
+.tabel-wrap { overflow-x: auto; margin: 0 0 12px; }
+.tabel-wrap[hidden] { display: none; }
+.tabel { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+.tabel th { padding: 0 6px 6px; text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.65; }
+.tabel td { padding: 6px; border-top: 1px solid rgba(255, 255, 255, 0.12); vertical-align: middle; }
+.tabel tbody tr:hover td { background: rgba(255, 255, 255, 0.06); }
+.th-ikon { width: 56px; }
+.th-aksi { width: 84px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.td-ikon .pin-ic { --ic: 36px; font-size: 17px; }
+.td-nama { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-link { overflow: hidden; }
+.td-link small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; opacity: 0.7; }
+.td-aksi { white-space: nowrap; text-align: right; }
+.td-aksi .ico2 { width: 34px; height: 34px; }
+.td-aksi .baris-lencana { display: inline-block; }
+
 /* Sisi belakang: daftar dengan Ubah dan Hapus */
 .pin-list { flex: 1; display: flex; flex-direction: column; gap: 6px; max-height: clamp(180px, 38vh, 300px); margin: 0 0 12px; padding: 0 2px 0 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
 .baris { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.07); }
