@@ -1,5 +1,5 @@
 "use strict";
-// Aistim Tab: halaman tab baru berisi menu pintasan (tambah, ubah, hapus). Tanpa akun, tanpa server:
+// Aistim Board: halaman tab baru berisi menu pintasan (tambah, ubah, hapus). Tanpa akun, tanpa server:
 // data tersimpan di browser ini. Permintaan jaringan hanya dua: ikon favicon Google dan pemeriksaan rilis di GitHub (lihat PRIVACY.md).
 
 const $ = (id) => document.getElementById(id);
@@ -572,14 +572,14 @@ function lebihBaru(a, b) {
 function verTerpasang() {
   try { return chrome.runtime.getManifest().version; } catch (e) { return ""; }
 }
-const urlZip = (v) => UPD_DL + "v" + v + "/Aistim-Tab-" + v + ".zip";
+const urlZip = (v) => UPD_DL + "v" + v + "/Aistim-Board-" + v + ".zip";
 async function ambilRilis() {
   const r = await fetch(UPD_API, { headers: { Accept: "application/vnd.github+json" }, cache: "no-cache" });
   if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "GitHub membatasi permintaan, coba lagi nanti." : "GitHub membalas " + r.status + ".");
   const j = await r.json();
   const m = /^v(\d+\.\d+\.\d+)$/.exec((j && j.tag_name) || "");
   if (!m || !verAngka(m[1])) throw new Error("Format rilis tidak dikenali.");
-  if (!Array.isArray(j.assets) || !j.assets.some((x) => x && x.name === "Aistim-Tab-" + m[1] + ".zip")) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
+  if (!Array.isArray(j.assets) || !j.assets.some((x) => x && x.name === "Aistim-Board-" + m[1] + ".zip")) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
   return { v: m[1], url: urlZip(m[1]) };
 }
 function tampilUpd() {
@@ -590,7 +590,7 @@ function tampilUpd() {
   $("upd-cara").hidden = !baru;
   if (baru) {
     $("upd-pill").href = upd.url;
-    $("upd-pill").title = "Unduh Aistim Tab v" + upd.v;
+    $("upd-pill").title = "Unduh Aistim Board v" + upd.v;
     $("upd-pill-teks").textContent = "Versi baru v" + upd.v + " tersedia · Unduh";
     $("upd-unduh").href = upd.url;
     $("upd-unduh").textContent = "Unduh v" + upd.v;
@@ -659,9 +659,9 @@ function pantau() {
 function labelVersi() {
   try {
     const v = chrome.runtime.getManifest().version;
-    $("ver").textContent = "Aistim Tab v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
+    $("ver").textContent = "Aistim Board v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
   } catch (e) {
-    $("ver").textContent = "Aistim Tab";
+    $("ver").textContent = "Aistim Board";
   }
 }
 async function mulai() {

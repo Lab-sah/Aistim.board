@@ -1,6 +1,6 @@
-# Kebijakan Privasi: Aistim Tab
+# Kebijakan Privasi: Aistim Board
 
-Aistim Tab tidak punya akun, server, analitik, atau iklan, dan tidak mengirim data pribadimu ke pengembang.
+Aistim Board tidak punya akun, server, analitik, atau iklan, dan tidak mengirim data pribadimu ke pengembang.
 
 ## Data yang disimpan di perangkatmu
 
