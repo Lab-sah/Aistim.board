@@ -467,15 +467,15 @@ $("sumber-segar").addEventListener("click", () => muatMenuBersama(true));
 // ---------- Jam dan kata-kata ----------
 const QUOTES = [
   { text: "Mulailah dari mana kamu berada, gunakan apa yang kamu punya.", author: "Arthur Ashe" },
-  { text: "Langkah kecil setiap hari lebih baik daripada lompatan besar sesekali.", author: "Anonim" },
-  { text: "Fokus pada kemajuan, bukan kesempurnaan.", author: "Anonim" },
-  { text: "Kerjakan yang penting dulu, sisanya menyusul.", author: "Anonim" },
-  { text: "Konsistensi mengalahkan intensitas.", author: "Anonim" },
+  { text: "Langkah kecil setiap hari lebih baik daripada lompatan besar sesekali.", author: "Aistim" },
+  { text: "Fokus pada kemajuan, bukan kesempurnaan.", author: "Aistim" },
+  { text: "Kerjakan yang penting dulu, sisanya menyusul.", author: "Aistim" },
+  { text: "Konsistensi mengalahkan intensitas.", author: "Aistim" },
   { text: "Sedikit demi sedikit, lama-lama menjadi bukit.", author: "Peribahasa" },
-  { text: "Hari ini adalah kesempatan baru untuk memulai.", author: "Anonim" },
-  { text: "Tenang, satu langkah saja dulu.", author: "Anonim" },
-  { text: "Yang dirapikan hari ini memudahkan besok.", author: "Anonim" },
-  { text: "Istirahat juga bagian dari bekerja.", author: "Anonim" },
+  { text: "Hari ini adalah kesempatan baru untuk memulai.", author: "Aistim" },
+  { text: "Tenang, satu langkah saja dulu.", author: "Aistim" },
+  { text: "Yang dirapikan hari ini memudahkan besok.", author: "Aistim" },
+  { text: "Istirahat juga bagian dari bekerja.", author: "Aistim" },
 ];
 // Jam 24 jam, diperbarui tepat di pergantian menit (dan saat tab kembali terlihat)
 function tick() {
