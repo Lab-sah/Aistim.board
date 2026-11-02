@@ -482,6 +482,7 @@ function tick() {
   const now = new Date();
   $("clock").textContent = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   $("date").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  if (latar.harian) terapkanLatar(); // ganti warna saat hari berganti
   clearTimeout(tick.t);
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
@@ -493,6 +494,56 @@ function initQuote() {
   const q = QUOTES[hari % QUOTES.length];
   $("quote-text").textContent = "“" + q.text + "”";
   $("quote-author").textContent = q.author;
+}
+
+// ---------- Latar: warna gradien halaman, bisa diganti atau berganti sendiri tiap hari ----------
+// Pilihan disimpan di browser (chrome.storage.local, kunci "latar"). Tanpa jaringan.
+const LATAR = [
+  { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
+  { id: "malam", nama: "Malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
+  { id: "ungu", nama: "Ungu", css: "linear-gradient(160deg, #2e1065 0%, #6b21a8 50%, #1e1b4b 100%)" },
+  { id: "hutan", nama: "Hutan", css: "linear-gradient(160deg, #052e16 0%, #166534 50%, #14532d 100%)" },
+  { id: "senja", nama: "Senja", css: "linear-gradient(160deg, #7c2d12 0%, #9a3412 50%, #431407 100%)" },
+  { id: "arang", nama: "Arang", css: "linear-gradient(160deg, #111827 0%, #374151 50%, #0b0f19 100%)" },
+];
+let latar = { id: "teal", harian: false };
+function normLatar(v) {
+  const o = v && typeof v === "object" ? v : {};
+  return { id: LATAR.some((x) => x.id === o.id) ? o.id : "teal", harian: o.harian === true };
+}
+// Mode harian: satu warna per hari (hari menurut jam lokal), berurutan mengikuti daftar
+function latarAktif() {
+  if (latar.harian) return LATAR[Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % LATAR.length];
+  return LATAR.find((x) => x.id === latar.id) || LATAR[0];
+}
+function terapkanLatar() {
+  const a = latarAktif();
+  document.documentElement.style.setProperty("--latar", a.css);
+  $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
+  $("latar-harian").checked = latar.harian;
+  document.querySelectorAll(".latar-sw").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === a.id)));
+}
+function bangunLatar() {
+  const g = $("latar-pilih");
+  g.textContent = "";
+  LATAR.forEach((x) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "latar-sw";
+    b.dataset.id = x.id;
+    b.setAttribute("role", "radio");
+    b.title = x.nama;
+    b.setAttribute("aria-label", "Latar " + x.nama);
+    b.style.background = x.css;
+    b.addEventListener("click", () => simpanLatar({ id: x.id, harian: false }));
+    g.append(b);
+  });
+  $("latar-harian").addEventListener("change", () => simpanLatar({ id: latar.id, harian: $("latar-harian").checked }));
+}
+async function simpanLatar(next) {
+  latar = next;
+  terapkanLatar();
+  try { await store.set("latar", latar); } catch (e) { msg("Gagal menyimpan latar."); }
 }
 
 // ---------- Pembaruan ----------
@@ -584,7 +635,11 @@ function dariLuar(nilai) {
 }
 function pantau() {
   if (hasChrome) {
-    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => { if (area === "local" && c.pins) dariLuar(c.pins.newValue); });
+    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => {
+      if (area !== "local") return;
+      if (c.pins) dariLuar(c.pins.newValue);
+      if (c.latar && c.latar.newValue) { latar = normLatar(c.latar.newValue); terapkanLatar(); }
+    });
   } else {
     window.addEventListener("storage", (e) => {
       if (e.key !== "pins") return;
@@ -608,6 +663,9 @@ async function mulai() {
   if (JSON.stringify(pins) !== JSON.stringify(tersimpan)) {
     try { await store.set("pins", pins); } catch (e) {}
   }
+  try { latar = normLatar(await store.get("latar", null)); } catch (e) {}
+  bangunLatar();
+  terapkanLatar();
   try { await muatCacheMenu(); } catch (e) {}
   renderPins();
   tampilSumber();
