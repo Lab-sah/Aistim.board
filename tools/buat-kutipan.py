@@ -8,8 +8,9 @@ import os
 import sys
 import urllib.request
 
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
-API = os.environ.get("KUTIPAN_API", "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % MODEL)
+# Model dicoba berurutan. Model berikutnya dipakai hanya bila model sebelumnya membalas 404 (tidak dikenali).
+MODELS = [m for m in [os.environ.get("GEMINI_MODEL", ""), "gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash"] if m]
+BASE = os.environ.get("KUTIPAN_API", "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent")
 KEY = os.environ.get("GEMINI_API_KEY", "")
 PROMPT = (
     "Buat 30 kutipan harian singkat dalam bahasa Indonesia tentang ketenangan, kerja, "
@@ -46,13 +47,25 @@ def main():
         "contents": [{"parts": [{"text": PROMPT}]}],
         "generationConfig": {"maxOutputTokens": 4000, "temperature": 0.9},
     }
-    req = urllib.request.Request(
-        API,
-        data=json.dumps(body).encode("utf8"),
-        headers={"x-goog-api-key": KEY, "content-type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=120) as r:
-        resp = json.load(r)
+    resp = None
+    for model in MODELS:
+        req = urllib.request.Request(
+            BASE.format(model=model),
+            data=json.dumps(body).encode("utf8"),
+            headers={"x-goog-api-key": KEY, "content-type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                resp = json.load(r)
+            print("model dipakai:", model)
+            break
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf8", "replace")[:500]
+            print("model %s gagal: HTTP %d %s" % (model, e.code, detail))
+            if e.code != 404:
+                sys.exit(1)
+    if resp is None:
+        sys.exit("tidak ada model Gemini yang dikenali: %s" % ", ".join(MODELS))
     kandidat = resp.get("candidates") or [{}]
     bagian = (kandidat[0].get("content") or {}).get("parts") or []
     teks = "".join(b.get("text", "") for b in bagian)
