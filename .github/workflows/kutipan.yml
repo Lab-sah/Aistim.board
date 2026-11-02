@@ -1,0 +1,39 @@
+name: Kutipan harian
+
+# Setiap Senin pukul 08.00 WIB: membuat kutipan baru dan membukakan PR untuk ditinjau.
+# Tidak langsung ke main, dan tidak memicu rilis extension.
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  buat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Buat kutipan baru
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 tools/buat-kutipan.py
+      - name: Buka PR untuk ditinjau
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- quotes.json; then
+            echo "Tidak ada perubahan kutipan"
+            exit 0
+          fi
+          BR="kutipan/$(date -u +%Y%m%d-%H%M)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add quotes.json
+          git commit -m "Kutipan harian baru (untuk ditinjau)"
+          git push -u origin "$BR"
+          gh pr create --base main --head "$BR" --title "Kutipan harian baru" --body "Dibuat otomatis oleh workflow. Tinjau isi quotes.json sebelum merge."

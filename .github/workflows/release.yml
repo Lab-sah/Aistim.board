@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths-ignore:
       - main.json # daftar menu bersama diedit lewat GitHub; tidak perlu rilis baru
+      - quotes.json # kutipan harian; tidak perlu rilis baru
   workflow_dispatch:
 
 permissions:

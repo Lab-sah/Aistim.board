@@ -556,10 +556,41 @@ window.addEventListener("resize", () => { jamUkur(); jamLoop(); });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) jamLoop(); });
 
 // Satu kata-kata per hari (hari menurut jam lokal), berganti tiap tengah malam
+let KUTIPAN = QUOTES; // daftar yang dipakai: dari quotes.json di GitHub, atau daftar bawaan
+const KUTIPAN_URL = "https://raw.githubusercontent.com/Lab-sah/Aistim.board/main/quotes.json";
+const KUTIPAN_JEDA = 24 * 60 * 60 * 1000; // dibaca ulang paling sering sehari sekali
+function bacaKutipan(j) {
+  const daftar = Array.isArray(j) ? j : j && Array.isArray(j.kutipan) ? j.kutipan : null;
+  if (!daftar) throw new Error("format tidak dikenali");
+  const hasil = daftar
+    .filter((x) => x && typeof x.text === "string" && typeof x.author === "string")
+    .map((x) => ({ text: x.text.trim().slice(0, 200), author: x.author.trim().slice(0, 40) }))
+    .filter((x) => x.text && x.author)
+    .slice(0, 200);
+  if (hasil.length < 5) throw new Error("terlalu sedikit kutipan");
+  return hasil;
+}
+// Salinan lokal dipakai dulu, lalu dicek ulang dari GitHub bila sudah lebih dari sehari. Gagal = tetap pakai daftar yang ada.
+async function muatKutipan() {
+  try {
+    const c = await store.get("kutipanV", null);
+    if (c && Array.isArray(c.items) && c.items.length) KUTIPAN = bacaKutipan(c.items);
+    initQuote();
+    if (c && typeof c.t === "number" && Date.now() - c.t < KUTIPAN_JEDA) return;
+  } catch (e) {}
+  try {
+    const r = await fetch(KUTIPAN_URL, { cache: "no-cache" });
+    if (!r.ok) return;
+    const items = bacaKutipan(await r.json());
+    KUTIPAN = items;
+    await store.set("kutipanV", { t: Date.now(), items });
+    initQuote();
+  } catch (e) {}
+}
 function initQuote() {
   const d = new Date();
   const hari = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000);
-  const q = QUOTES[hari % QUOTES.length];
+  const q = KUTIPAN[hari % KUTIPAN.length];
   $("quote-text").textContent = "“" + q.text + "”";
   $("quote-author").textContent = q.author;
 }
@@ -1174,5 +1205,6 @@ async function mulai() {
   pantau();
   muatMenuBersama(false); // tidak ditunggu: halaman sudah tampil dengan salinan tersimpan
   muatPembaruan();
+  muatKutipan(); // tidak ditunggu: kutipan default sudah tampil
 }
 mulai().catch((e) => msg("Gagal memuat menu: " + (e && e.message ? e.message : e)));
