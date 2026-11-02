@@ -92,7 +92,7 @@ function rapikanPins(daftar) {
     const href = x && typeof x.href === "string" ? normalUrl(x.href) : null;
     if (!href) continue;
     const id = idLink(href);
-    const p = { id, nama: typeof x.nama === "string" ? x.nama : "", href, ikon: typeof x.ikon === "string" ? x.ikon : "" };
+    const p = { id, nama: typeof x.nama === "string" ? x.nama.slice(0, 30) : "", href, ikon: typeof x.ikon === "string" ? grafem(x.ikon, 2) : "" };
     const d = ada.get(id);
     if (!d) {
       ada.set(id, p);
@@ -433,6 +433,8 @@ async function muatMenuBersama(paksa) {
       sumber = { ...sumber, ada: false, err: "", lewat: [], t: Date.now() };
     } else {
       if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "GitHub membatasi permintaan, coba lagi nanti" : "GitHub membalas " + r.status);
+      // Batas ukuran dicek dari header dulu, supaya berkas yang terlalu besar tidak diunduh seluruhnya
+      if (Number(r.headers.get("content-length") || 0) > 100000) throw new Error("berkasnya terlalu besar");
       const { items, lewat } = bacaMenu((await r.text()).replace(/^\uFEFF/, ""));
       pinsV = items;
       sumber = { ...sumber, ada: true, err: "", lewat, t: Date.now() };
@@ -584,10 +586,13 @@ function fxGambar(now) {
     }
   }
 }
+// Dibatasi 30 fps supaya tidak menguras baterai; riak tetap halus pada kecepatan itu
+const FPS_MAKS = 1000 / 30;
+let fxLast = -Infinity;
 function fxFrame(now) {
   fxRaf = 0;
   if (!fxAktif || document.hidden) return;
-  fxGambar(now);
+  if (now - fxLast >= FPS_MAKS) { fxLast = now; fxGambar(now); }
   fxRaf = requestAnimationFrame(fxFrame);
 }
 function fxNyala(on) {
@@ -664,10 +669,11 @@ function gelGambar(now) {
     gelCtx.fill();
   }
 }
+let gelLastDraw = -Infinity;
 function gelFrame(now) {
   gelRaf = 0;
   if (!gelAktif || document.hidden) return;
-  gelGambar(now);
+  if (now - gelLastDraw >= FPS_MAKS) { gelLastDraw = now; gelGambar(now); }
   gelRaf = requestAnimationFrame(gelFrame);
 }
 function gelNyala(on) {
@@ -695,7 +701,11 @@ function terapkanLatar() {
   gelNyala(!!a.gelembung);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
-  document.querySelectorAll(".latar-sw").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === a.id)));
+  document.querySelectorAll(".latar-sw").forEach((b) => {
+    const on = b.dataset.id === a.id;
+    b.setAttribute("aria-checked", String(on));
+    b.tabIndex = on ? 0 : -1; // satu tombol yang bisa difokus lewat Tab; panah untuk memilih yang lain
+  });
 }
 function bangunLatar() {
   const g = $("latar-pilih");
@@ -711,6 +721,16 @@ function bangunLatar() {
     b.style.background = latarCss(x);
     b.addEventListener("click", () => simpanLatar({ id: x.id, harian: false }));
     g.append(b);
+  });
+  g.addEventListener("keydown", (e) => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
+    e.preventDefault();
+    const sw = [...g.querySelectorAll(".latar-sw")];
+    const i = Math.max(0, sw.indexOf(document.activeElement));
+    const dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+    const next = sw[(i + dir + sw.length) % sw.length];
+    next.focus();
+    next.click();
   });
   $("latar-harian").addEventListener("change", () => simpanLatar({ id: latar.id, harian: $("latar-harian").checked }));
 }
