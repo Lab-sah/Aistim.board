@@ -2,7 +2,7 @@
 
 Extension Chrome yang mengganti halaman **tab baru** dengan dua kartu: **jam dan kata-kata** di atas, lalu kartu **Menu** berisi pintasan ke situs yang sering dibuka, dengan tile **+** untuk menambah menu.
 
-Versi lama (dengan jam, kutipan, Aistim.sync, dan menu bersama bertanda tangan) ada di branch [`main-v1`](../../tree/main-v1).
+Versi lama (dengan jam, kutipan, Aistim.sync, dan menu bersama bertanda tangan) ada di tag [`v0.26.0`](../../tree/v0.26.0).
 
 ## Fitur
 
