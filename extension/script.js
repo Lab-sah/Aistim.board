@@ -763,10 +763,10 @@ function lebihBaru(a, b) {
 function verTerpasang() {
   try { return chrome.runtime.getManifest().version; } catch (e) { return ""; }
 }
-// Nama zip yang dikenali: nama sekarang, dan nama lama untuk rilis yang sudah terbit (v1.3.0 dan sebelumnya).
-// Hanya dua nama tetap ini yang dipakai untuk membangun tautan, jadi tautan tidak pernah diambil dari balasan GitHub.
-const NAMA_ZIP = ["Aistim-Board-", "Aistim-Tab-"];
-const urlZip = (v, nama) => UPD_DL + "v" + v + "/" + nama + v + ".zip";
+// Nama berkas zip rilis. Hanya nama tetap ini yang dipakai untuk membangun tautan unduhan,
+// jadi tautan tidak pernah diambil dari balasan GitHub.
+const NAMA_ZIP = "Aistim-board-";
+const urlZip = (v) => UPD_DL + "v" + v + "/" + NAMA_ZIP + v + ".zip";
 async function ambilRilis() {
   const r = await fetch(UPD_API, { headers: { Accept: "application/vnd.github+json" }, cache: "no-cache" });
   if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "GitHub membatasi permintaan, coba lagi nanti." : "GitHub membalas " + r.status + ".");
@@ -774,9 +774,8 @@ async function ambilRilis() {
   const m = /^v(\d+\.\d+\.\d+)$/.exec((j && j.tag_name) || "");
   if (!m || !verAngka(m[1])) throw new Error("Format rilis tidak dikenali.");
   const assets = Array.isArray(j.assets) ? j.assets : [];
-  const nama = NAMA_ZIP.find((n) => assets.some((x) => x && x.name === n + m[1] + ".zip"));
-  if (!nama) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
-  return { v: m[1], nama, url: urlZip(m[1], nama) };
+  if (!assets.some((x) => x && x.name === NAMA_ZIP + m[1] + ".zip")) throw new Error("Rilis v" + m[1] + " belum punya berkas zip.");
+  return { v: m[1], url: urlZip(m[1]) };
 }
 function tampilUpd() {
   const pas = verTerpasang();
@@ -815,7 +814,7 @@ async function muatPembaruan() {
   const otomatis = (await store.get("updAuto", true)) !== false;
   $("upd-auto").checked = otomatis;
   const c = await store.get("updInfo", null);
-  if (c && typeof c.t === "number" && verAngka(c.v) && NAMA_ZIP.includes(c.nama) && c.url === urlZip(c.v, c.nama)) upd = { t: c.t, v: c.v, nama: c.nama, url: c.url };
+  if (c && typeof c.t === "number" && verAngka(c.v) && c.url === urlZip(c.v)) upd = { t: c.t, v: c.v, url: c.url };
   tampilUpd();
   if (otomatis) periksaPembaruan(false); // tidak ditunggu; gagal = diam saja
 }
