@@ -510,6 +510,12 @@ const LATAR = [
   // Foto dengan gelembung yang naik pelan di atasnya (flag "gelembung")
   { id: "akuarium", nama: "Akuarium", foto: "bg/akuarium.jpg", gelembung: true },
   { id: "musim-gugur", nama: "Hutan musim gugur", foto: "bg/hutan-musim-gugur.jpg", gelembung: true },
+  // Adegan yang digambar di canvas dan bergerak
+  { id: "hujan", nama: "Hujan kota", css: "linear-gradient(160deg, #0b1220 0%, #1b2638 50%, #2a3a52 100%)", adegan: "hujan" },
+  { id: "salju", nama: "Salju gunung", css: "linear-gradient(160deg, #2c4a6b 0%, #7f9bb8 60%, #dbe6f0 100%)", adegan: "salju" },
+  { id: "kunang", nama: "Kunang-kunang", css: "linear-gradient(160deg, #1a2540 0%, #4a4a6a 55%, #e7a25c 100%)", adegan: "kunang" },
+  { id: "bintang", nama: "Bintang jatuh", css: "linear-gradient(160deg, #03060f 0%, #0c1a38 60%, #1d2f5c 100%)", adegan: "bintang" },
+  { id: "ombak", nama: "Ombak senja", css: "linear-gradient(160deg, #2b5876 0%, #e8805e 55%, #0d3d57 100%)", adegan: "ombak" },
   // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
   { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
@@ -700,11 +706,234 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && gelAktif && !gelRaf) gelRaf = requestAnimationFrame(gelFrame);
 });
 
+// ---------- Adegan: pemandangan yang digambar di canvas dan bergerak (hujan, salju, kunang-kunang, bintang, ombak) ----------
+const adeganEl = $("adegan");
+const adeganCtx = adeganEl.getContext("2d");
+let adeganId = null, adeganRaf = 0, adeganDraw = -Infinity, adeganLast = 0, adeganT0 = 0, adeganW = 0, adeganH = 0, adeganDpr = 1, adeganSt = null;
+const acak = (a, b) => a + Math.random() * (b - a);
+// Langit bertingkat dari atas ke bawah
+function langit(c, W, H, warna) {
+  const g = c.createLinearGradient(0, 0, 0, H);
+  warna.forEach((w, i) => g.addColorStop(i / (warna.length - 1), w));
+  c.fillStyle = g;
+  c.fillRect(0, 0, W, H);
+}
+// Garis bukit atau gunung dengan sinus (tidak acak per frame, jadi tampilannya tetap)
+function siluet(c, W, H, y0, amp, fr, ph, warna) {
+  c.beginPath();
+  c.moveTo(0, H);
+  for (let x = 0; x <= W; x += 8) c.lineTo(x, y0 - amp * (0.6 * Math.sin(x * fr + ph) + 0.4 * Math.sin(x * fr * 2.3 + ph * 1.7)));
+  c.lineTo(W, H);
+  c.closePath();
+  c.fillStyle = warna;
+  c.fill();
+}
+const ADEGAN = {
+  hujan: {
+    init(W, H) {
+      return {
+        tetes: Array.from({ length: Math.round((W * H) / 9000) }, () => ({ x: acak(0, W), y: acak(-H, H), v: acak(600, 950), p: acak(12, 22) })),
+        gedung: Array.from({ length: 16 }, (_, i) => ({ x: (i * W) / 15 - 20, h: H * acak(0.18, 0.42), lampu: Array.from({ length: 6 }, () => [acak(0, 1), acak(0, 1), Math.random() < 0.5]) })),
+        kilat: 0, tunggu: acak(3, 8),
+      };
+    },
+    draw(c, W, H, t, dt, st) {
+      langit(c, W, H, ["#0b1220", "#1b2638", "#2a3a52"]);
+      for (const g of st.gedung) {
+        c.fillStyle = "#070b14";
+        c.fillRect(g.x, H - g.h, W / 15 + 12, g.h);
+        for (const [lx, ly, nyala] of g.lampu) {
+          if (!nyala) continue;
+          c.fillStyle = "rgba(253,224,130,0.55)";
+          c.fillRect(g.x + lx * (W / 15), H - g.h + ly * g.h * 0.9, 4, 6);
+        }
+      }
+      st.tunggu -= dt;
+      if (st.tunggu <= 0) { st.kilat = 1; st.tunggu = acak(4, 10); }
+      if (st.kilat > 0) {
+        c.fillStyle = "rgba(210,225,255," + (0.22 * st.kilat).toFixed(3) + ")";
+        c.fillRect(0, 0, W, H);
+        st.kilat = Math.max(0, st.kilat - dt * 3);
+      }
+      c.strokeStyle = "rgba(200,215,240,0.45)";
+      c.lineWidth = 1;
+      c.beginPath();
+      for (const d of st.tetes) {
+        d.y += d.v * dt;
+        d.x -= d.v * 0.14 * dt;
+        if (d.y > H) { d.y = acak(-120, 0); d.x = acak(0, W + 60); }
+        if (d.x < -20) d.x += W + 40;
+        c.moveTo(d.x, d.y);
+        c.lineTo(d.x + d.p * 0.14, d.y - d.p);
+      }
+      c.stroke();
+    },
+  },
+  salju: {
+    init(W, H) {
+      return { kepingan: Array.from({ length: Math.round((W * H) / 6000) }, () => ({ x: acak(0, W), y: acak(0, H), r: acak(1, 3.2), v: acak(18, 55), ph: acak(0, 6.28) })) };
+    },
+    draw(c, W, H, t, dt, st) {
+      langit(c, W, H, ["#2c4a6b", "#7f9bb8", "#dbe6f0"]);
+      siluet(c, W, H, H * 0.62, H * 0.22, 0.004, 1.2, "#8ea5bf");
+      siluet(c, W, H, H * 0.75, H * 0.16, 0.007, 3.1, "#5a7290");
+      siluet(c, W, H, H * 0.92, H * 0.06, 0.011, 0.4, "#e9f1f7");
+      c.fillStyle = "rgba(255,255,255,0.9)";
+      for (const k of st.kepingan) {
+        k.y += k.v * dt;
+        if (k.y > H + 5) { k.y = -5; k.x = acak(0, W); }
+        const x = k.x + Math.sin(t * 0.9 + k.ph) * 14;
+        c.beginPath();
+        c.arc(x, k.y, k.r, 0, Math.PI * 2);
+        c.fill();
+      }
+    },
+  },
+  kunang: {
+    init(W, H) {
+      return { kunang: Array.from({ length: 36 }, () => ({ x: acak(0, W), y: acak(H * 0.4, H * 0.95), ph: acak(0, 6.28), vx: acak(-14, 14), vy: acak(-9, 9) })) };
+    },
+    draw(c, W, H, t, dt, st) {
+      langit(c, W, H, ["#1a2540", "#4a4a6a", "#e7a25c"]);
+      siluet(c, W, H, H * 0.7, H * 0.1, 0.005, 2.0, "#23352a");
+      siluet(c, W, H, H * 0.85, H * 0.06, 0.009, 0.7, "#142219");
+      for (const k of st.kunang) {
+        k.x += k.vx * dt;
+        k.y += k.vy * dt + Math.sin(t + k.ph) * 0.6;
+        if (k.x < -10) k.x = W + 10;
+        if (k.x > W + 10) k.x = -10;
+        if (k.y < H * 0.35) k.y = H * 0.95;
+        if (k.y > H) k.y = H * 0.4;
+        const a = 0.5 + 0.5 * Math.sin(t * 2.2 + k.ph);
+        const g = c.createRadialGradient(k.x, k.y, 0, k.x, k.y, 9);
+        g.addColorStop(0, "rgba(255,240,150," + (0.9 * a).toFixed(3) + ")");
+        g.addColorStop(1, "rgba(255,240,150,0)");
+        c.fillStyle = g;
+        c.fillRect(k.x - 9, k.y - 9, 18, 18);
+      }
+    },
+  },
+  bintang: {
+    init(W, H) {
+      return {
+        bintang: Array.from({ length: Math.round((W * H) / 5000) }, () => ({ x: acak(0, W), y: acak(0, H * 0.8), r: acak(0.5, 1.8), ph: acak(0, 6.28), fr: acak(0.8, 2.5) })),
+        jatuh: null, tunggu: acak(3, 7),
+      };
+    },
+    draw(c, W, H, t, dt, st) {
+      langit(c, W, H, ["#03060f", "#0c1a38", "#1d2f5c"]);
+      for (const b of st.bintang) {
+        const a = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * b.fr + b.ph));
+        c.fillStyle = "rgba(255,255,255," + a.toFixed(3) + ")";
+        c.beginPath();
+        c.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        c.fill();
+      }
+      siluet(c, W, H, H * 0.9, H * 0.07, 0.006, 1.5, "#050a16");
+      st.tunggu -= dt;
+      if (!st.jatuh && st.tunggu <= 0) {
+        st.jatuh = { x: acak(0, W * 0.8), y: acak(0, H * 0.3), vx: W * 0.9, vy: H * 0.45, sisa: 1 };
+        st.tunggu = acak(4, 9);
+      }
+      const s = st.jatuh;
+      if (s) {
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.sisa -= dt * 1.2;
+        const len = Math.hypot(s.vx, s.vy), ux = s.vx / len, uy = s.vy / len, panjang = 140;
+        const g = c.createLinearGradient(s.x - ux * panjang, s.y - uy * panjang, s.x, s.y);
+        g.addColorStop(0, "rgba(255,255,255,0)");
+        g.addColorStop(1, "rgba(255,255,255," + Math.max(0, s.sisa).toFixed(3) + ")");
+        c.strokeStyle = g;
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(s.x - ux * panjang, s.y - uy * panjang);
+        c.lineTo(s.x, s.y);
+        c.stroke();
+        if (s.sisa <= 0) st.jatuh = null;
+      }
+    },
+  },
+  ombak: {
+    init() { return {}; },
+    draw(c, W, H, t) {
+      const hor = H * 0.58, sx = W * 0.72, sy = hor - H * 0.02;
+      langit(c, W, H, ["#2b5876", "#e8805e", "#ffc07a"]);
+      const glow = c.createRadialGradient(sx, sy, 0, sx, sy, H * 0.35);
+      glow.addColorStop(0, "rgba(255,240,200,0.9)");
+      glow.addColorStop(1, "rgba(255,240,200,0)");
+      c.fillStyle = glow;
+      c.fillRect(0, 0, W, H);
+      c.fillStyle = "#fff3cf";
+      c.beginPath();
+      c.arc(sx, sy, H * 0.05, 0, Math.PI * 2);
+      c.fill();
+      const laut = c.createLinearGradient(0, hor, 0, H);
+      laut.addColorStop(0, "#2a8ca6");
+      laut.addColorStop(1, "#0d3d57");
+      c.fillStyle = laut;
+      c.fillRect(0, hor, W, H - hor);
+      c.fillStyle = "rgba(255,230,160,0.35)"; // pantulan matahari di air
+      for (let i = 0; i < 9; i++) {
+        const w = H * 0.14 * (1 - i / 10);
+        c.fillRect(sx - w / 2 + Math.sin(t * 1.5 + i) * 6, hor + 6 + i * (H * 0.035), w, 3);
+      }
+      c.lineWidth = 2; // garis ombak yang bergerak
+      for (let k = 0; k < 6; k++) {
+        const y = hor + 10 + k * ((H - hor) / 6);
+        c.strokeStyle = "rgba(255,255,255," + (0.12 + k * 0.02).toFixed(3) + ")";
+        c.beginPath();
+        for (let x = 0; x <= W; x += 10) c.lineTo(x, y + Math.sin(x * 0.01 + t * (1 + k * 0.3) + k) * (3 + k));
+        c.stroke();
+      }
+    },
+  },
+};
+function adeganUkur() {
+  adeganDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  adeganW = innerWidth;
+  adeganH = innerHeight;
+  adeganEl.width = Math.round(adeganW * adeganDpr);
+  adeganEl.height = Math.round(adeganH * adeganDpr);
+  if (adeganId) adeganSt = ADEGAN[adeganId].init(adeganW, adeganH);
+}
+function adeganFrame(now) {
+  adeganRaf = 0;
+  if (!adeganId || document.hidden) return;
+  if (now - adeganDraw >= jedaFrame(now)) {
+    adeganDraw = now;
+    const dt = adeganLast ? Math.min(0.05, (now - adeganLast) / 1000) : 0;
+    adeganLast = now;
+    adeganCtx.setTransform(adeganDpr, 0, 0, adeganDpr, 0, 0);
+    ADEGAN[adeganId].draw(adeganCtx, adeganW, adeganH, (now - adeganT0) / 1000, dt, adeganSt);
+  }
+  adeganRaf = requestAnimationFrame(adeganFrame);
+}
+function adeganNyala(id) {
+  if (id === adeganId) return;
+  adeganId = id;
+  adeganEl.hidden = !id;
+  if (id) {
+    adeganUkur();
+    adeganT0 = performance.now();
+    adeganLast = 0;
+    if (!adeganRaf && !document.hidden) adeganRaf = requestAnimationFrame(adeganFrame);
+  } else if (adeganRaf) {
+    cancelAnimationFrame(adeganRaf);
+    adeganRaf = 0;
+  }
+}
+window.addEventListener("resize", () => { if (adeganId) adeganUkur(); });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && adeganId && !adeganRaf) adeganRaf = requestAnimationFrame(adeganFrame);
+});
+
 function terapkanLatar() {
   const a = latarAktif();
   document.documentElement.style.setProperty("--latar", latarCss(a));
   fxNyala(!!a.animasi);
   gelNyala(!!a.gelembung);
+  adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
   document.querySelectorAll(".latar-sw").forEach((b) => {
