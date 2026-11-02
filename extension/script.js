@@ -807,6 +807,12 @@ let gelLastDraw = -Infinity;
 let kursor = null; // { x, y, t }: posisi kursor atau sentuhan terakhir (piksel CSS)
 ["pointermove", "pointerdown"].forEach((ev) => window.addEventListener(ev, (e) => { kursor = { x: e.clientX, y: e.clientY, t: performance.now() }; }, { passive: true }));
 const KURSOR_AKTIF = 3000; // ms: setelah tidak ada gerakan, ikan kembali berkeliling sendiri
+// Sprite koi (gambar tanpa latar, di bg/ikan/): pandangan samping, atas, dan tiga per empat
+const IKAN_IMG = { samping: new Image(), atas: new Image(), tiga: new Image() };
+IKAN_IMG.samping.src = "bg/ikan/koi-samping.png";
+IKAN_IMG.atas.src = "bg/ikan/koi-atas.png";
+IKAN_IMG.tiga.src = "bg/ikan/koi-tiga-empat.png";
+const JENIS_IKAN = ["samping", "atas", "tiga"];
 function ikanBaru() {
   const sudut = Math.random() * Math.PI * 2, v = (18 + Math.random() * 30) * (gelGerak ? 1 : 0.3);
   return {
@@ -816,7 +822,7 @@ function ikanBaru() {
     vy: Math.sin(sudut) * v * 0.4,
     p: 16 + Math.random() * 12,
     ph: Math.random() * 6.283,
-    biru: Math.random() < 0.5,
+    jenis: JENIS_IKAN[Math.floor(Math.random() * JENIS_IKAN.length)],
     hadap: Math.random() < 0.5 ? 1 : -1,
   };
 }
@@ -857,35 +863,19 @@ function ikanGambar(t, dt) {
     if (f.y < innerHeight * 0.2) { f.y = innerHeight * 0.2; f.vy = Math.abs(f.vy); }
     if (f.y > innerHeight * 0.9) { f.y = innerHeight * 0.9; f.vy = -Math.abs(f.vy); }
     if (Math.abs(f.vx) > 4) f.hadap = f.vx > 0 ? 1 : -1; // menghadap arah gerak
-    const L = f.p * gelDpr, ry = L * 0.28, ekor = Math.sin(t * 9 + f.ph) * L * 0.18;
+    const img = IKAN_IMG[f.jenis];
+    if (!img.complete || !img.naturalWidth) continue;
+    const tinggi = f.p * 2 * gelDpr, lebar = (tinggi * img.naturalWidth) / img.naturalHeight;
     c.save();
     c.translate(f.x * gelDpr, f.y * gelDpr);
-    c.scale(f.hadap, 1);
-    c.beginPath(); // ekor bergoyang
-    c.moveTo(-L * 0.45, 0);
-    c.lineTo(-L * 0.9, -L * 0.35 + ekor);
-    c.lineTo(-L * 0.9, L * 0.35 + ekor);
-    c.closePath();
-    c.fillStyle = f.biru ? "#ef4444" : "#38bdf8";
-    c.fill();
-    const g = c.createLinearGradient(0, -ry, 0, ry); // badan: atas biru, bawah merah (neon tetra)
-    g.addColorStop(0, f.biru ? "#38bdf8" : "#ef4444");
-    g.addColorStop(0.5, "#e2e8f0");
-    g.addColorStop(1, f.biru ? "#ef4444" : "#38bdf8");
-    c.beginPath();
-    c.ellipse(0, 0, L * 0.5, ry, 0, 0, Math.PI * 2);
-    c.fillStyle = g;
-    c.fill();
-    c.beginPath(); // garis neon
-    c.moveTo(-L * 0.42, -ry * 0.1);
-    c.lineTo(L * 0.3, -ry * 0.1);
-    c.lineWidth = Math.max(1, L * 0.07);
-    c.strokeStyle = f.biru ? "#7dd3fc" : "#fca5a5";
-    c.stroke();
-    c.beginPath(); // mata
-    c.arc(L * 0.3, -ry * 0.25, Math.max(1, L * 0.06), 0, Math.PI * 2);
-    c.fillStyle = "#0f172a";
-    c.fill();
+    if (f.jenis === "samping") {
+      c.scale(-f.hadap, 1); // kepala ke arah gerak; sprite aslinya menghadap kiri
+    } else {
+      const arah = Math.atan2(f.vy, f.vx); // sprite atas: putar sesuai arah gerak (kepala di kiri = sudut π)
+      c.rotate(arah - Math.PI);
+    }
+    c.transform(1, 0, Math.sin(t * 6 + f.ph) * 0.07, 1, 0, 0); // badan meliuk pelan seperti berenang
+    c.drawImage(img, -lebar / 2, -tinggi / 2, lebar, tinggi);
     c.restore();
   }
 }
