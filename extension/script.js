@@ -812,7 +812,7 @@ const IKAN_IMG = { samping: new Image(), atas: new Image(), tiga: new Image() };
 IKAN_IMG.samping.src = "bg/ikan/koi-samping.png";
 IKAN_IMG.atas.src = "bg/ikan/koi-atas.png";
 IKAN_IMG.tiga.src = "bg/ikan/koi-tiga-empat.png";
-const JENIS_IKAN = ["samping", "atas", "tiga"];
+const JENIS_IKAN = ["samping"]; // semua koi pandangan samping, seperti ikan di akuarium
 function ikanBaru() {
   const sudut = Math.random() * Math.PI * 2, v = (18 + Math.random() * 30) * (gelGerak ? 1 : 0.3);
   return {
