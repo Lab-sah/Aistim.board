@@ -809,7 +809,9 @@ let kursor = null; // { x, y, t }: posisi kursor atau sentuhan terakhir (piksel 
 const KURSOR_AKTIF = 3000; // ms: setelah tidak ada gerakan, ikan kembali berkeliling sendiri
 // Sprite koi (gambar tanpa latar, di bg/ikan/): pandangan samping, atas, dan tiga per empat
 const IKAN_IMG = { samping: new Image(), atas: new Image(), tiga: new Image() };
-IKAN_IMG.samping.src = "bg/ikan/koi-samping.png";
+IKAN_IMG.samping.src = "bg/ikan/koi-tubuh.png"; // badan koi (sprite samping dipotong di pangkal ekor)
+const IKAN_EKOR = new Image();
+IKAN_EKOR.src = "bg/ikan/koi-ekor.png";
 IKAN_IMG.atas.src = "bg/ikan/koi-atas.png";
 IKAN_IMG.tiga.src = "bg/ikan/koi-tiga-empat.png";
 const JENIS_IKAN = ["samping"]; // semua koi pandangan samping, seperti ikan di akuarium
@@ -864,18 +866,20 @@ function ikanGambar(t, dt) {
     if (f.y > innerHeight * 0.9) { f.y = innerHeight * 0.9; f.vy = -Math.abs(f.vy); }
     if (Math.abs(f.vx) > 4) f.hadap = f.vx > 0 ? 1 : -1; // menghadap arah gerak
     const img = IKAN_IMG[f.jenis];
-    if (!img.complete || !img.naturalWidth) continue;
-    const tinggi = f.p * 2 * gelDpr, lebar = (tinggi * img.naturalWidth) / img.naturalHeight;
+    if (!img.complete || !img.naturalWidth || !IKAN_EKOR.complete) continue;
+    const tinggi = f.p * 2 * gelDpr, lebar = (tinggi * 256) / 110; // lebar sprite utuh (256 x 110)
     c.save();
     c.translate(f.x * gelDpr, f.y * gelDpr);
-    if (f.jenis === "samping") {
-      c.scale(-f.hadap, 1); // kepala ke arah gerak; sprite aslinya menghadap kiri
-    } else {
-      const arah = Math.atan2(f.vy, f.vx); // sprite atas: putar sesuai arah gerak (kepala di kiri = sudut π)
-      c.rotate(arah - Math.PI);
-    }
-    c.transform(1, 0, Math.sin(t * 6 + f.ph) * 0.07, 1, 0, 0); // badan meliuk pelan seperti berenang
-    c.drawImage(img, -lebar / 2, -tinggi / 2, lebar, tinggi);
+    c.scale(-f.hadap, 1); // kepala ke arah gerak; sprite aslinya menghadap kiri
+    c.transform(1, 0, Math.sin(t * 6 + f.ph) * 0.05, 1, 0, 0); // badan meliuk pelan
+    // ekor: diputar di pangkalnya (sekitar 74% lebar sprite), mengibas bergantian
+    const pangkal = -lebar / 2 + lebar * (190 / 256);
+    c.save();
+    c.translate(pangkal, 0);
+    c.rotate(Math.sin(t * 8 + f.ph) * 0.4);
+    c.drawImage(IKAN_EKOR, 0, -tinggi / 2, lebar * (66 / 256), tinggi);
+    c.restore();
+    c.drawImage(img, -lebar / 2, -tinggi / 2, lebar * (194 / 256), tinggi); // badan menutupi sambungan
     c.restore();
   }
 }
