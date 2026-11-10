@@ -170,8 +170,6 @@ function pinTile(p) {
   const a = document.createElement("a");
   a.className = "pin";
   a.href = p.href;
-  a.target = "_blank"; // dibuka di tab baru; halaman ini tetap terbuka
-  a.rel = "noopener noreferrer";
   a.title = p.href;
   const nm = document.createElement("span");
   nm.className = "pin-nm";
