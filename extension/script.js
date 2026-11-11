@@ -1506,6 +1506,13 @@ async function segarSholat() {
   }
   renderSholat(now);
 }
+function pesanLokasiGagal(err) {
+  const kode = err && err.code;
+  if (kode === 1) return "Izin lokasi ditolak. Izinkan lokasi untuk halaman ini di browser, dan pastikan Location Services untuk Chrome aktif (Pengaturan macOS > Privacy & Security > Location Services).";
+  if (kode === 2) return "Lokasi tidak tersedia. Pastikan Location Services untuk Chrome aktif di Pengaturan macOS.";
+  if (kode === 3) return "Waktu habis saat mencari lokasi. Tekan Deteksi untuk mencoba lagi.";
+  return "Gagal mendeteksi lokasi" + (err && err.message ? ": " + err.message : ".") + " Pilih kota dari daftar.";
+}
 function sinkronkanPilihanSholat() {
   $("sholat-kota").value = sholatSumber.tipe === "koor" ? SHOLAT_LOKASI : sholatSumber.kota;
 }
@@ -1524,8 +1531,9 @@ function deteksiLokasi() {
       sinkronkanPilihanSholat();
       segarSholat();
     },
-    () => {
-      $("sholat-info").textContent = "Lokasi tidak diizinkan atau tidak tersedia. Pilih kota dari daftar.";
+    (err) => {
+      $("sholat-info").textContent = pesanLokasiGagal(err);
+      console.warn("[sholat] geolocation gagal", err && err.code, err && err.message);
       if (sholatSumber.tipe === "koor") sinkronkanPilihanSholat();
     },
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 1800000 }
@@ -1570,7 +1578,11 @@ async function mulaiSholat() {
         sinkronkanPilihanSholat();
         segarSholat();
       },
-      () => { store.set("sholatSumber", sholatSumber).catch(() => {}); },
+      (err) => {
+        store.set("sholatSumber", sholatSumber).catch(() => {});
+        $("sholat-info").textContent = pesanLokasiGagal(err);
+        console.warn("[sholat] geolocation gagal saat mulai", err && err.code, err && err.message);
+      },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 1800000 }
     );
   } else if (!tersimpan) {
