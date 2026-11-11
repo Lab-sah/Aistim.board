@@ -193,6 +193,7 @@ body {
 .latar-harian input { margin: 0; }
 
 .msg { min-height: 18px; margin: 8px 4px 0; font-size: 13px; opacity: 0.9; }
+.msg:empty { min-height: 0; margin: 0; } /* pesan kosong tidak menambah jarak di bawah menu */
 
 /* Dialog */
 dialog {
@@ -227,7 +228,7 @@ dialog button[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) { .flip-in, .face { transition: none; } }
 @media (min-width: 768px) {
-  .jam, .pins, .upd-pill { max-width: 960px; }
+  .jam, .pins, .upd-pill, .radio { max-width: 960px; }
   .pin-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } /* desktop: 8 kolom */
   .pin-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 260px; }
 }
