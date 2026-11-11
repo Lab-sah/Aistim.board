@@ -17,15 +17,21 @@
     <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
     <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
 
-    <!-- Kartu atas: jam dan kata-kata -->
-    <section class="jam" aria-label="Jam dan kata-kata">
-      <canvas id="jam-canvas" class="jam-canvas" role="img" aria-label="Jam"></canvas>
-      <div id="date" class="date"></div>
-      <figure class="quote">
-        <blockquote id="quote-text"></blockquote>
-        <figcaption id="quote-author"></figcaption>
-      </figure>
-    </section>
+    <div class="atas">
+      <!-- Kartu atas: jam dan kata-kata -->
+      <section class="jam" aria-label="Jam dan kata-kata">
+        <canvas id="jam-canvas" class="jam-canvas" role="img" aria-label="Jam"></canvas>
+        <div id="date" class="date"></div>
+        <figure class="quote">
+          <blockquote id="quote-text"></blockquote>
+          <figcaption id="quote-author"></figcaption>
+        </figure>
+      </section>
+      <!-- Radio: pemutar RadioTune.fm disematkan di sebelah jam -->
+      <section class="radio" aria-label="Radio">
+        <iframe src="https://www.radiotune.fm/id-id/" title="RadioTune.fm" allow="autoplay" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </section>
+    </div>
 
     <section class="pins" aria-label="Menu">
       <!-- Kartu berbalik: depan = menu untuk dibuka, belakang = atur (ubah, hapus, tambah) -->
