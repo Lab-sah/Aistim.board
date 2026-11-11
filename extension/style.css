@@ -47,11 +47,13 @@ body {
 .radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
 /* Kartu jadwal sholat: di kanan jam di desktop, di bawah jam di layar sempit */
 .sholat { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; padding: 16px 18px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); color: #fff; }
-.sholat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
-.sholat-judul { margin: 0; font-size: 16px; }
+.sholat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.sholat-judul { margin: 0; font-size: 16px; white-space: nowrap; }
+.sholat-head > div:first-child { min-width: 0; flex: 1 1 auto; }
 .sholat-tanggal { margin-top: 2px; font-size: 12px; opacity: 0.75; }
 .sholat-kota { max-width: 150px; background: rgba(255, 255, 255, 0.12); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 999px; padding: 4px 8px; font: inherit; font-size: 13px; }
 .sholat-kota option { color: #111; }
+.sholat-pilih { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .sholat-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .sholat-daftar li { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 10px; font-size: 15px; }
 .sholat-daftar li.next { background: rgba(255, 255, 255, 0.16); font-weight: 600; }

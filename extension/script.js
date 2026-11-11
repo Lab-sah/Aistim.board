@@ -839,22 +839,30 @@ function airUkuran() {
 function airGambar(now) {
   airCtx.clearRect(0, 0, airW, airH);
   for (let i = airRiak.length - 1; i >= 0; i--) {
-    const u = (now - airRiak[i].t) / 1200;
+    const u = (now - airRiak[i].t) / 1400;
     if (u >= 1) { airRiak.splice(i, 1); continue; }
     const x = airRiak[i].x, y = airRiak[i].y;
-    // Dua cincin per riak: cincin gelap tipis di luar dan cincin terang di dalamnya, seperti tepi gelombang di air
-    for (const off of [0, 0.16]) {
+    // Sorot lembut di pusat riak, lalu dua cincin (gelap di luar, terang di dalam) yang melebar dan memudar
+    const rPusat = (0.2 + 0.8 * (1 - Math.pow(1 - u, 2))) * 80 * airDpr;
+    const sorot = airCtx.createRadialGradient(x, y, 0, x, y, rPusat);
+    sorot.addColorStop(0, "rgba(200,240,255," + (0.22 * (1 - u)).toFixed(3) + ")");
+    sorot.addColorStop(1, "rgba(200,240,255,0)");
+    airCtx.fillStyle = sorot;
+    airCtx.beginPath();
+    airCtx.arc(x, y, rPusat, 0, Math.PI * 2);
+    airCtx.fill();
+    for (const off of [0, 0.14]) {
       const v = u - off;
       if (v <= 0) continue;
-      const k = (1 - v) * (off ? 0.6 : 1);
-      const r = (0.15 + 0.85 * (1 - Math.pow(1 - v, 2))) * 72 * airDpr;
-      airCtx.lineWidth = Math.max(1.5, 2.2 * airDpr);
-      airCtx.strokeStyle = "rgba(0,28,46," + (0.32 * k).toFixed(3) + ")";
+      const k = (1 - v) * (off ? 0.7 : 1);
+      const r = (0.15 + 0.85 * (1 - Math.pow(1 - v, 2))) * 84 * airDpr;
+      airCtx.lineWidth = Math.max(2, 3 * airDpr);
+      airCtx.strokeStyle = "rgba(0,28,46," + (0.45 * k).toFixed(3) + ")";
       airCtx.beginPath();
-      airCtx.arc(x, y, r + 1.5 * airDpr, 0, Math.PI * 2);
+      airCtx.arc(x, y, r + 1.8 * airDpr, 0, Math.PI * 2);
       airCtx.stroke();
-      airCtx.lineWidth = Math.max(1, 1.6 * airDpr);
-      airCtx.strokeStyle = "rgba(235,250,255," + (0.6 * k).toFixed(3) + ")";
+      airCtx.lineWidth = Math.max(1.5, 2.2 * airDpr);
+      airCtx.strokeStyle = "rgba(245,252,255," + (0.9 * k).toFixed(3) + ")";
       airCtx.beginPath();
       airCtx.arc(x, y, r, 0, Math.PI * 2);
       airCtx.stroke();
@@ -873,8 +881,8 @@ if (airGerak) {
   window.addEventListener("pointermove", (e) => {
     if (document.hidden || document.querySelector("dialog[open]")) return;
     const t = performance.now();
-    const jauh = !airTitik || Math.hypot(e.clientX - airTitik.x, e.clientY - airTitik.y) >= 16;
-    if (!jauh && t - airWaktu < 90) return; // tidak membanjiri riak saat kursor diam atau bergerak pelan
+    const jauh = !airTitik || Math.hypot(e.clientX - airTitik.x, e.clientY - airTitik.y) >= 12;
+    if (!jauh && t - airWaktu < 70) return; // tidak membanjiri riak saat kursor diam atau bergerak pelan
     airTitik = { x: e.clientX, y: e.clientY };
     airWaktu = t;
     airRiak.push({ x: e.clientX * airDpr, y: e.clientY * airDpr, t });
@@ -1428,22 +1436,31 @@ function labelVersi() {
     $("ver").textContent = "Aistim Board";
   }
 }
-// ---------- Jadwal sholat: kalender bulanan per kota dari api.aladhan.com (metode Kemenag RI), di-cache per bulan ----------
+// ---------- Jadwal sholat: kalender bulanan dari api.aladhan.com (metode Kemenag RI), di-cache per bulan ----------
+// Sumber: kota pilihan (default Jakarta), atau lokasi perangkat (koordinat dibulatkan 2 desimal, sekitar 1 km).
 const SHOLAT_KOTA = ["Jakarta", "Bandung", "Surabaya", "Semarang", "Yogyakarta", "Medan", "Palembang", "Makassar", "Denpasar", "Balikpapan", "Banjarmasin", "Pekanbaru", "Padang", "Samarinda", "Manado", "Pontianak", "Malang"];
 const SHOLAT_WAKTU = [["Subuh", "Fajr"], ["Terbit", "Sunrise"], ["Dzuhur", "Dhuhr"], ["Ashar", "Asr"], ["Maghrib", "Maghrib"], ["Isya", "Isha"]];
 const SHOLAT_METODE = 20; // Kementerian Agama RI di Aladhan
-let sholatKota = "Jakarta";
+const SHOLAT_LOKASI = "__lokasi";
+let sholatSumber = { tipe: "kota", kota: "Jakarta" };
 let sholatBulan = null; // { kunci, hari: { [tanggal]: [jam x6] } }
 let sholatHari = -1;
 function jamDariTeks(t) { return String(t || "").replace(/\s*\(.*\)\s*$/, "").trim(); }
 function menitDari(hm) { const [h, m] = hm.split(":").map(Number); return h * 60 + m; }
-async function muatBulanSholat(kota, y, m) {
-  const kunci = "sholat-" + kota + "-" + y + "-" + m;
+function kunciSumber(sum, y, m) {
+  return sum.tipe === "kota" ? "sholat-k-" + sum.kota + "-" + y + "-" + m : "sholat-g-" + sum.lat + "-" + sum.lon + "-" + y + "-" + m;
+}
+function urlSumber(sum, y, m) {
+  const dasar = "https://api.aladhan.com/v1/";
+  if (sum.tipe === "kota") return dasar + "calendarByCity/" + y + "/" + m + "?city=" + encodeURIComponent(sum.kota) + "&country=Indonesia&method=" + SHOLAT_METODE;
+  return dasar + "calendar/" + y + "/" + m + "?latitude=" + sum.lat + "&longitude=" + sum.lon + "&method=" + SHOLAT_METODE;
+}
+async function muatBulanSholat(sum, y, m) {
+  const kunci = kunciSumber(sum, y, m);
   let simpan = null;
   try { simpan = await store.get(kunci, null); } catch (e) {}
   if (simpan && simpan.hari) return { kunci, hari: simpan.hari };
-  const url = "https://api.aladhan.com/v1/calendarByCity/" + y + "/" + m + "?city=" + encodeURIComponent(kota) + "&country=Indonesia&method=" + SHOLAT_METODE;
-  const r = await fetch(url, { cache: "no-cache" });
+  const r = await fetch(urlSumber(sum, y, m), { cache: "no-cache" });
   if (!r.ok) throw new Error("HTTP " + r.status);
   const j = await r.json();
   const hari = {};
@@ -1477,9 +1494,9 @@ async function segarSholat() {
   const now = new Date();
   sholatHari = now.getDate();
   $("sholat-tanggal").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
-  const kunci = "sholat-" + sholatKota + "-" + now.getFullYear() + "-" + (now.getMonth() + 1);
+  const kunci = kunciSumber(sholatSumber, now.getFullYear(), now.getMonth() + 1);
   try {
-    if (!sholatBulan || sholatBulan.kunci !== kunci) sholatBulan = await muatBulanSholat(sholatKota, now.getFullYear(), now.getMonth() + 1);
+    if (!sholatBulan || sholatBulan.kunci !== kunci) sholatBulan = await muatBulanSholat(sholatSumber, now.getFullYear(), now.getMonth() + 1);
     $("sholat-info").textContent = "";
   } catch (e) {
     if (!sholatBulan || sholatBulan.kunci !== kunci) {
@@ -1489,9 +1506,32 @@ async function segarSholat() {
   }
   renderSholat(now);
 }
+function sinkronkanPilihanSholat() {
+  $("sholat-kota").value = sholatSumber.tipe === "koor" ? SHOLAT_LOKASI : sholatSumber.kota;
+}
+function deteksiLokasi() {
+  if (!navigator.geolocation) {
+    $("sholat-info").textContent = "Browser ini tidak mendukung deteksi lokasi. Pilih kota dari daftar.";
+    return;
+  }
+  $("sholat-info").textContent = "Mendeteksi lokasi…";
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const bulat = (v) => Math.round(v * 100) / 100;
+      sholatSumber = { tipe: "koor", lat: bulat(pos.coords.latitude), lon: bulat(pos.coords.longitude) };
+      sholatBulan = null;
+      store.set("sholatSumber", sholatSumber).catch(() => {});
+      sinkronkanPilihanSholat();
+      segarSholat();
+    },
+    () => {
+      $("sholat-info").textContent = "Lokasi tidak diizinkan atau tidak tersedia. Pilih kota dari daftar.";
+      if (sholatSumber.tipe === "koor") sinkronkanPilihanSholat();
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 1800000 }
+  );
+}
 async function mulaiSholat() {
-  const kota = await store.get("sholatKota", "Jakarta");
-  sholatKota = SHOLAT_KOTA.includes(kota) ? kota : "Jakarta";
   const pilih = $("sholat-kota");
   for (const k of SHOLAT_KOTA) {
     const o = document.createElement("option");
@@ -1499,14 +1539,43 @@ async function mulaiSholat() {
     o.textContent = k;
     pilih.append(o);
   }
-  pilih.value = sholatKota;
-  pilih.addEventListener("change", async () => {
-    sholatKota = pilih.value;
+  const lok = document.createElement("option");
+  lok.value = SHOLAT_LOKASI;
+  lok.textContent = "Lokasi saya";
+  pilih.prepend(lok);
+  let tersimpan = null;
+  try { tersimpan = await store.get("sholatSumber", null); } catch (e) {}
+  if (tersimpan && tersimpan.tipe === "kota" && SHOLAT_KOTA.includes(tersimpan.kota)) sholatSumber = tersimpan;
+  else if (tersimpan && tersimpan.tipe === "koor" && Number.isFinite(tersimpan.lat) && Number.isFinite(tersimpan.lon)) sholatSumber = tersimpan;
+  sinkronkanPilihanSholat();
+  pilih.addEventListener("change", () => {
+    if (pilih.value === SHOLAT_LOKASI) {
+      if (sholatSumber.tipe === "koor") { sholatBulan = null; segarSholat(); } else deteksiLokasi();
+      return;
+    }
+    sholatSumber = { tipe: "kota", kota: pilih.value };
     sholatBulan = null;
-    try { await store.set("sholatKota", sholatKota); } catch (e) {}
+    store.set("sholatSumber", sholatSumber).catch(() => {});
     segarSholat();
   });
-  segarSholat();
+  $("sholat-deteksi").addEventListener("click", deteksiLokasi);
+  // Pertama kali dibuka: coba deteksi lokasi. Jika ditolak atau gagal, pakai kota (default Jakarta) dan tidak bertanya lagi.
+  segarSholat(); // tampilkan dulu (kota atau lokasi tersimpan)
+  if (!tersimpan && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const bulat = (v) => Math.round(v * 100) / 100;
+        sholatSumber = { tipe: "koor", lat: bulat(pos.coords.latitude), lon: bulat(pos.coords.longitude) };
+        store.set("sholatSumber", sholatSumber).catch(() => {});
+        sinkronkanPilihanSholat();
+        segarSholat();
+      },
+      () => { store.set("sholatSumber", sholatSumber).catch(() => {}); },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 1800000 }
+    );
+  } else if (!tersimpan) {
+    store.set("sholatSumber", sholatSumber).catch(() => {});
+  }
   // Tiap menit perbarui waktu berikutnya; ganti hari = ambil ulang tanggal dan jadwalnya
   setInterval(() => {
     const now = new Date();

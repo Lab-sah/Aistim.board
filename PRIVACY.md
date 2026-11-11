@@ -16,7 +16,7 @@ Ada lima jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari l
 
 **4. Kutipan harian**: sehari sekali (dan saat pertama dibuka), extension membaca berkas publik `https://raw.githubusercontent.com/Lab-sah/Aistim.board/main/quotes.json` berisi daftar kutipan. Permintaan ini tanpa token, tanpa cookie, dan tanpa data pribadimu. Isinya hanya dibaca dan ditampilkan sebagai teks.
 
-**5. Jadwal sholat**: saat tab dibuka dan saat kota diganti, extension mengambil kalender jadwal sholat satu bulan dari `https://api.aladhan.com/v1/calendarByCity/...`. Yang dikirim hanya nama kota yang kamu pilih (default Jakarta), negara Indonesia, metode perhitungan, bulan, dan tahun. Tanpa token, tanpa cookie, tanpa lokasi perangkat, dan tanpa data pribadi. Jadwal yang sudah diambil disimpan di browser agar tidak diminta ulang dalam bulan yang sama.
+**5. Jadwal sholat**: saat tab dibuka dan saat kota diganti, extension mengambil kalender jadwal sholat satu bulan dari `https://api.aladhan.com/v1/calendarByCity/...`. Yang dikirim hanya nama kota yang kamu pilih (default Jakarta) atau, jika memilih **Lokasi saya**, koordinat perangkat yang dibulatkan ke 2 desimal (sekitar 1 km), serta metode perhitungan, bulan, dan tahun. Lokasi hanya diminta lewat izin lokasi dari browser, dan dicoba saat pertama kali tab dibuka; kalau ditolak, dipakai kota. Tanpa token dan tanpa cookie. Jadwal yang sudah diambil disimpan di browser agar tidak diminta ulang dalam bulan yang sama. Koordinat tersimpan di browser (kunci `sholatSumber`).
 
 Extension tidak meminta izin situs (`host_permissions`) apa pun; izin yang dipakai hanya `storage`.
 
