@@ -64,7 +64,7 @@ body {
 .radio-kotak { padding: 0; overflow: hidden; }
 .radio.terbuka .radio-kotak { padding: 0 10px 10px; }
 .radio iframe { display: block; width: calc(100% + 240px); max-width: none; height: 0; border: 0; border-radius: 14px; opacity: 0.78; }
-.radio.terbuka iframe { height: clamp(460px, 85vh, 860px); }
+.radio.terbuka iframe { height: clamp(460px, 85vh, 860px); width: 100%; }
 
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
    mengikuti sisi yang sedang tampil, jadi sisi depan tidak ikut setinggi sisi belakang yang lebih panjang. */
