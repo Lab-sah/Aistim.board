@@ -85,6 +85,11 @@ function idLink(href) {
   return "m" + (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 // Data tersimpan dirapikan: id dari link, link sama digabung, data yang kosong dilengkapi dari duplikatnya.
+// Gambar ikon unggahan (data URL WebP/PNG hasil perkecilan). Hanya string data:image/ yang ukurannya wajar.
+const PIN_GAMBAR_MAKS = 60000;
+function gambarTersimpan(v) {
+  return typeof v === "string" && v.startsWith("data:image/") && v.length <= PIN_GAMBAR_MAKS ? v : "";
+}
 function rapikanPins(daftar) {
   const hasil = [];
   const ada = new Map();
@@ -92,7 +97,7 @@ function rapikanPins(daftar) {
     const href = x && typeof x.href === "string" ? normalUrl(x.href) : null;
     if (!href) continue;
     const id = idLink(href);
-    const p = { id, nama: typeof x.nama === "string" ? x.nama.slice(0, 30) : "", href, ikon: typeof x.ikon === "string" ? grafem(x.ikon, 2) : "" };
+    const p = { id, nama: typeof x.nama === "string" ? x.nama.slice(0, 30) : "", href, ikon: typeof x.ikon === "string" ? grafem(x.ikon, 2) : "", gambar: gambarTersimpan(x.gambar) };
     const d = ada.get(id);
     if (!d) {
       ada.set(id, p);
@@ -100,6 +105,7 @@ function rapikanPins(daftar) {
     } else {
       d.nama = d.nama || p.nama;
       d.ikon = d.ikon || p.ikon;
+      d.gambar = d.gambar || p.gambar;
     }
   }
   return hasil;
@@ -135,6 +141,14 @@ function pinWarna(s) {
 function pinIkon(p, favicon = true) {
   const s = document.createElement("span");
   s.className = "pin-ic";
+  if (p.gambar) {
+    s.classList.add("gambar");
+    const gm = new Image();
+    gm.alt = "";
+    gm.src = p.gambar;
+    s.append(gm);
+    return s;
+  }
   s.textContent = p.ikon || grafem(pinLabel(p), 1).toUpperCase() || "•";
   if (p.ikon) return s;
   s.style.background = pinWarna(hostOf(p.href) || p.nama);
@@ -291,7 +305,7 @@ const dlgHapus = $("dlg-hapus");
 
 function formPin() {
   const href = normalUrl($("pin-url").value);
-  return { href: href || "", nama: $("pin-nama").value.trim().slice(0, 30), ikon: grafem($("pin-ikon").value, 2) };
+  return { href: href || "", nama: $("pin-nama").value.trim().slice(0, 30), ikon: grafem($("pin-ikon").value, 2), gambar: pinGambar };
 }
 // Favicon di pratinjau baru diminta setelah kolom link selesai diisi (event "change"), bukan tiap ketikan,
 // supaya potongan nama domain yang masih diketik tidak ikut dikirim ke Google.
@@ -309,7 +323,11 @@ function openPin(id) {
   $("pin-nama").value = p ? p.nama : "";
   $("pin-ikon").value = p ? p.ikon : "";
   pinFav = !!p; // menu yang sudah ada punya link lengkap; menu baru menunggu link selesai diisi
-  $("pin-lain").open = !!(p && p.ikon);
+  pinGambar = p && p.gambar ? p.gambar : "";
+  $("pin-foto").value = "";
+  $("pin-foto-info").textContent = pinGambar ? "Gambar sudah dipasang." : "";
+  $("pin-foto-hapus").hidden = !pinGambar;
+  $("pin-lain").open = !!(p && (p.ikon || p.gambar));
   $("pin-del").hidden = !p;
   $("pin-err").textContent = "";
   previewPin();
@@ -325,6 +343,59 @@ $("pin-url").addEventListener("change", () => {
   previewPin();
 });
 ["pin-nama", "pin-ikon"].forEach((id) => $(id).addEventListener("input", previewPin));
+
+// Unggahan gambar ikon: diperkecil ke 96 px (crop tengah) lalu disimpan sebagai data URL di browser. Tidak dikirim ke mana pun.
+let pinGambar = "";
+async function gambarDariFile(file) {
+  if (!file.type.startsWith("image/")) throw new Error("File harus berupa gambar.");
+  if (file.size > 5 * 1024 * 1024) throw new Error("Ukuran gambar maksimal 5 MB.");
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error("Gambar tidak bisa dibaca."));
+      i.src = url;
+    });
+    const S = 96;
+    const cv = document.createElement("canvas");
+    cv.width = S;
+    cv.height = S;
+    const k = Math.max(S / img.naturalWidth, S / img.naturalHeight);
+    const w = img.naturalWidth * k;
+    const h = img.naturalHeight * k;
+    cv.getContext("2d").drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+    let out = cv.toDataURL("image/webp", 0.85);
+    if (!out.startsWith("data:image/webp")) out = cv.toDataURL("image/png");
+    if (out.length > PIN_GAMBAR_MAKS) throw new Error("Gambar terlalu besar setelah diperkecil.");
+    return out;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+$("pin-foto").addEventListener("change", async () => {
+  const f = $("pin-foto").files[0];
+  if (!f) return;
+  try {
+    pinGambar = await gambarDariFile(f);
+    $("pin-foto-info").textContent = "Gambar dipasang (" + Math.round(pinGambar.length / 1024) + " KB).";
+    $("pin-err").textContent = "";
+  } catch (err) {
+    pinGambar = "";
+    $("pin-foto").value = "";
+    $("pin-foto-info").textContent = "";
+    $("pin-err").textContent = err.message;
+  }
+  $("pin-foto-hapus").hidden = !pinGambar;
+  previewPin();
+});
+$("pin-foto-hapus").addEventListener("click", () => {
+  pinGambar = "";
+  $("pin-foto").value = "";
+  $("pin-foto-info").textContent = "";
+  $("pin-foto-hapus").hidden = true;
+  previewPin();
+});
 $("pin-cancel").addEventListener("click", () => dlgPin.close());
 
 let pinSimpan = false; // ketukan ganda pada Simpan tidak menyimpan dua kali

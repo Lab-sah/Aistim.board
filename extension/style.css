@@ -116,6 +116,7 @@ body {
 .pin-ic img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .pin-ic.fav { background: rgba(255, 255, 255, 0.92); }
 .pin-ic.fav img { width: 58%; height: 58%; object-fit: contain; }
+.pin-ic.gambar { background: none; }
 /* Tile "+": ukuran dan warna sama dengan tile tambah di halaman tab baru Brave (lingkaran 44px, + tipis 21px, tanpa teks) */
 .pin.tambah { padding-top: 6px; }
 .pin.tambah:hover { background: none; }
@@ -215,6 +216,9 @@ dialog button[hidden] { display: none; }
 .pin-row .pin-ic { --ic: 44px; font-size: 20px; }
 #pin-info { flex: 1; margin: 0; }
 #pin-lain { margin: 6px 0 10px; }
+.pin-foto { margin-top: 10px; }
+.pin-foto-label { display: block; font-size: 14px; }
+.pin-foto-aksi { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 #pin-lain summary { cursor: pointer; font-size: 14px; padding: 6px 0; }
 .pin-err { color: #fca5a5; min-height: 1em; }
 .hapus-teks { margin: 0; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }

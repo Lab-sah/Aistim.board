@@ -105,6 +105,15 @@
           <input id="pin-ikon" type="text" maxlength="16" placeholder="mis. 🛒" autocomplete="off">
         </label>
         <small>Dipakai sebagai ganti favicon.</small>
+        <div class="pin-foto">
+          <label class="pin-foto-label">Atau unggah gambar
+            <input id="pin-foto" type="file" accept="image/*">
+          </label>
+          <div class="pin-foto-aksi">
+            <small id="pin-foto-info"></small>
+            <button type="button" id="pin-foto-hapus" class="danger" hidden>Hapus gambar</button>
+          </div>
+        </div>
       </details>
       <small id="pin-err" class="pin-err" role="alert"></small>
       <menu>
