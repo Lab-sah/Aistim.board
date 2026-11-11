@@ -1,1 +1,3 @@
 Aistim-board-*.zip
+__pycache__/
+*.pyc
