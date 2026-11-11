@@ -822,6 +822,69 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && fxAktif && !fxRaf) fxRaf = requestAnimationFrame(fxFrame);
 });
 
+// ---------- Efek air: riak tipis mengikuti gerak kursor, di semua jenis latar (tidak mengubah latar) ----------
+// Riak hanya dibuat saat kursor bergerak cukup jauh, dibatasi 30 fps, dan berhenti sendiri saat sudah memudar.
+const air = $("air");
+const airCtx = air.getContext("2d");
+const airGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let airRaf = 0, airW = 0, airH = 0, airDpr = 1, airLast = -Infinity, airTitik = null, airWaktu = 0;
+const airRiak = []; // { x, y, t } dalam piksel kanvas
+function airUkuran() {
+  airDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  airW = Math.round(innerWidth * airDpr);
+  airH = Math.round(innerHeight * airDpr);
+  air.width = airW;
+  air.height = airH;
+}
+function airGambar(now) {
+  airCtx.clearRect(0, 0, airW, airH);
+  for (let i = airRiak.length - 1; i >= 0; i--) {
+    const u = (now - airRiak[i].t) / 1200;
+    if (u >= 1) { airRiak.splice(i, 1); continue; }
+    const x = airRiak[i].x, y = airRiak[i].y;
+    // Dua cincin per riak: cincin gelap tipis di luar dan cincin terang di dalamnya, seperti tepi gelombang di air
+    for (const off of [0, 0.16]) {
+      const v = u - off;
+      if (v <= 0) continue;
+      const k = (1 - v) * (off ? 0.6 : 1);
+      const r = (0.15 + 0.85 * (1 - Math.pow(1 - v, 2))) * 72 * airDpr;
+      airCtx.lineWidth = Math.max(1.5, 2.2 * airDpr);
+      airCtx.strokeStyle = "rgba(0,28,46," + (0.32 * k).toFixed(3) + ")";
+      airCtx.beginPath();
+      airCtx.arc(x, y, r + 1.5 * airDpr, 0, Math.PI * 2);
+      airCtx.stroke();
+      airCtx.lineWidth = Math.max(1, 1.6 * airDpr);
+      airCtx.strokeStyle = "rgba(235,250,255," + (0.6 * k).toFixed(3) + ")";
+      airCtx.beginPath();
+      airCtx.arc(x, y, r, 0, Math.PI * 2);
+      airCtx.stroke();
+    }
+  }
+}
+let airLastFrame = -Infinity;
+function airFrame(now) {
+  airRaf = 0;
+  if (!airRiak.length) { air.hidden = true; airCtx.clearRect(0, 0, airW, airH); return; }
+  if (now - airLastFrame >= 1000 / 30) { airLastFrame = now; airGambar(now); }
+  airRaf = requestAnimationFrame(airFrame);
+}
+if (airGerak) {
+  airUkuran();
+  window.addEventListener("pointermove", (e) => {
+    if (document.hidden || document.querySelector("dialog[open]")) return;
+    const t = performance.now();
+    const jauh = !airTitik || Math.hypot(e.clientX - airTitik.x, e.clientY - airTitik.y) >= 16;
+    if (!jauh && t - airWaktu < 90) return; // tidak membanjiri riak saat kursor diam atau bergerak pelan
+    airTitik = { x: e.clientX, y: e.clientY };
+    airWaktu = t;
+    airRiak.push({ x: e.clientX * airDpr, y: e.clientY * airDpr, t });
+    if (airRiak.length > 16) airRiak.shift();
+    air.hidden = false;
+    if (!airRaf) airRaf = requestAnimationFrame(airFrame);
+  }, { passive: true });
+  window.addEventListener("resize", () => { airUkuran(); airRiak.length = 0; air.hidden = true; });
+}
+
 // ---------- Gelembung: gelembung naik pelan di atas foto, sebagian bergoyang ke samping ----------
 const gel = $("gel");
 const gelCtx = gel.getContext("2d");
