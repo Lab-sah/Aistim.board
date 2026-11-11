@@ -288,11 +288,11 @@ function putar(belakang) {
 }
 $("btn-flip").addEventListener("click", () => putar(true));
 
-// Radio: ringkas (hanya bagian atas RadioTune) atau lihat semua (tinggi diperbesar)
+// Radio: tertutup secara default; "Lihat semua" membuka pemutar RadioTune, "Tutup" menyembunyikannya lagi
 $("radio-lihat").addEventListener("click", () => {
   const terbuka = $("radio").classList.toggle("terbuka");
   $("radio-lihat").setAttribute("aria-expanded", String(terbuka));
-  $("radio-lihat").textContent = terbuka ? "Ringkas ⤒" : "Lihat semua ⤓";
+  $("radio-lihat").textContent = terbuka ? "Tutup ⤒" : "Lihat semua ⤓";
 });
 $("btn-flip-balik").addEventListener("click", () => putar(false));
 document.addEventListener("keydown", (e) => {
