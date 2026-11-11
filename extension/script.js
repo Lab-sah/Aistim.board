@@ -1428,11 +1428,98 @@ function labelVersi() {
     $("ver").textContent = "Aistim Board";
   }
 }
+// ---------- Jadwal sholat: kalender bulanan per kota dari api.aladhan.com (metode Kemenag RI), di-cache per bulan ----------
+const SHOLAT_KOTA = ["Jakarta", "Bandung", "Surabaya", "Semarang", "Yogyakarta", "Medan", "Palembang", "Makassar", "Denpasar", "Balikpapan", "Banjarmasin", "Pekanbaru", "Padang", "Samarinda", "Manado", "Pontianak", "Malang"];
+const SHOLAT_WAKTU = [["Subuh", "Fajr"], ["Terbit", "Sunrise"], ["Dzuhur", "Dhuhr"], ["Ashar", "Asr"], ["Maghrib", "Maghrib"], ["Isya", "Isha"]];
+const SHOLAT_METODE = 20; // Kementerian Agama RI di Aladhan
+let sholatKota = "Jakarta";
+let sholatBulan = null; // { kunci, hari: { [tanggal]: [jam x6] } }
+let sholatHari = -1;
+function jamDariTeks(t) { return String(t || "").replace(/\s*\(.*\)\s*$/, "").trim(); }
+function menitDari(hm) { const [h, m] = hm.split(":").map(Number); return h * 60 + m; }
+async function muatBulanSholat(kota, y, m) {
+  const kunci = "sholat-" + kota + "-" + y + "-" + m;
+  let simpan = null;
+  try { simpan = await store.get(kunci, null); } catch (e) {}
+  if (simpan && simpan.hari) return { kunci, hari: simpan.hari };
+  const url = "https://api.aladhan.com/v1/calendarByCity/" + y + "/" + m + "?city=" + encodeURIComponent(kota) + "&country=Indonesia&method=" + SHOLAT_METODE;
+  const r = await fetch(url, { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const j = await r.json();
+  const hari = {};
+  for (const d of (j && j.data) || []) {
+    hari[parseInt(d.date.gregorian.day, 10)] = SHOLAT_WAKTU.map(([, en]) => jamDariTeks(d.timings[en]));
+  }
+  try { await store.set(kunci, { hari }); } catch (e) {}
+  return { kunci, hari };
+}
+function renderSholat(now) {
+  const ul = $("sholat-daftar");
+  ul.textContent = "";
+  const jam = sholatBulan && sholatBulan.hari[now.getDate()];
+  if (!jam) return;
+  const menit = now.getHours() * 60 + now.getMinutes();
+  // Waktu berikutnya: waktu sholat pertama yang belum lewat (Terbit tidak dihitung)
+  let next = -1;
+  SHOLAT_WAKTU.forEach((w, i) => { if (i !== 1 && next < 0 && menitDari(jam[i]) > menit) next = i; });
+  SHOLAT_WAKTU.forEach(([nama], i) => {
+    const li = document.createElement("li");
+    if (i === next) li.classList.add("next");
+    const a = document.createElement("span");
+    a.textContent = nama;
+    const b = document.createElement("span");
+    b.textContent = jam[i];
+    li.append(a, b);
+    ul.append(li);
+  });
+}
+async function segarSholat() {
+  const now = new Date();
+  sholatHari = now.getDate();
+  $("sholat-tanggal").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
+  const kunci = "sholat-" + sholatKota + "-" + now.getFullYear() + "-" + (now.getMonth() + 1);
+  try {
+    if (!sholatBulan || sholatBulan.kunci !== kunci) sholatBulan = await muatBulanSholat(sholatKota, now.getFullYear(), now.getMonth() + 1);
+    $("sholat-info").textContent = "";
+  } catch (e) {
+    if (!sholatBulan || sholatBulan.kunci !== kunci) {
+      sholatBulan = null;
+      $("sholat-info").textContent = "Jadwal belum bisa dimuat. Periksa koneksi internet.";
+    }
+  }
+  renderSholat(now);
+}
+async function mulaiSholat() {
+  const kota = await store.get("sholatKota", "Jakarta");
+  sholatKota = SHOLAT_KOTA.includes(kota) ? kota : "Jakarta";
+  const pilih = $("sholat-kota");
+  for (const k of SHOLAT_KOTA) {
+    const o = document.createElement("option");
+    o.value = k;
+    o.textContent = k;
+    pilih.append(o);
+  }
+  pilih.value = sholatKota;
+  pilih.addEventListener("change", async () => {
+    sholatKota = pilih.value;
+    sholatBulan = null;
+    try { await store.set("sholatKota", sholatKota); } catch (e) {}
+    segarSholat();
+  });
+  segarSholat();
+  // Tiap menit perbarui waktu berikutnya; ganti hari = ambil ulang tanggal dan jadwalnya
+  setInterval(() => {
+    const now = new Date();
+    if (now.getDate() !== sholatHari) segarSholat();
+    else renderSholat(now);
+  }, 60000);
+}
 async function mulai() {
   jamUkur();
   jamLoop();
   tick();
   initQuote();
+  mulaiSholat();
   const tersimpan = await store.get("pins", []);
   pins = rapikanPins(tersimpan);
   if (JSON.stringify(pins) !== JSON.stringify(tersimpan)) {

@@ -29,6 +29,18 @@
           <figcaption id="quote-author"></figcaption>
         </figure>
       </section>
+      <!-- Kartu jadwal sholat: di kanan jam (di bawah jam pada layar sempit). Data dari api.aladhan.com, per kota -->
+      <section class="sholat" aria-label="Jadwal sholat">
+        <div class="sholat-head">
+          <div>
+            <h2 class="sholat-judul">Jadwal Sholat</h2>
+            <div id="sholat-tanggal" class="sholat-tanggal"></div>
+          </div>
+          <select id="sholat-kota" class="sholat-kota" aria-label="Kota jadwal sholat"></select>
+        </div>
+        <ul id="sholat-daftar" class="sholat-daftar"></ul>
+        <p id="sholat-info" class="sholat-info" role="status"></p>
+      </section>
     </div>
 
     <section class="pins" aria-label="Menu">

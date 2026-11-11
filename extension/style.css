@@ -45,6 +45,18 @@ body {
 .radio-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
 .radio-bar .pins-btn { white-space: nowrap; }
 .radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
+/* Kartu jadwal sholat: di kanan jam di desktop, di bawah jam di layar sempit */
+.sholat { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; padding: 16px 18px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); color: #fff; }
+.sholat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.sholat-judul { margin: 0; font-size: 16px; }
+.sholat-tanggal { margin-top: 2px; font-size: 12px; opacity: 0.75; }
+.sholat-kota { max-width: 150px; background: rgba(255, 255, 255, 0.12); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 999px; padding: 4px 8px; font: inherit; font-size: 13px; }
+.sholat-kota option { color: #111; }
+.sholat-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.sholat-daftar li { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 10px; font-size: 15px; }
+.sholat-daftar li.next { background: rgba(255, 255, 255, 0.16); font-weight: 600; }
+.sholat-info { margin: 8px 0 0; font-size: 13px; opacity: 0.85; }
+.sholat-info:empty { display: none; }
 /* Tinggi ringkas: hanya baris kotak cari RadioTune yang tampil. Banner "Dapatkan di Google Play" di bawahnya terpotong. Atur bila perlu. */
 /* Transparan seperti kartu jam: isi iframe dibuat setengah tembus pandang, latar kartu terlihat di baliknya. */
 /* Iframe dibuat lebih lebar dari kartu: kartu memotong sisi kanan, jadi ikon di kanan kotak cari tidak terlihat. */
@@ -229,6 +241,9 @@ dialog button[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) { .flip-in, .face { transition: none; } }
 @media (min-width: 768px) {
   .jam, .pins, .upd-pill, .radio { max-width: 960px; }
+  .atas { flex-direction: row; align-items: stretch; max-width: 960px; }
+  .atas .jam { flex: 2 1 0; width: auto; max-width: none; }
+  .atas .sholat { flex: 1 1 0; width: auto; max-width: none; }
   .pin-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } /* desktop: 8 kolom */
   .pin-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 260px; }
 }
