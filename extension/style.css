@@ -49,7 +49,8 @@ body {
 .radio { --radio-ringkas: 62px; }
 /* Transparan seperti kartu jam: isi iframe dibuat setengah tembus pandang, latar kartu terlihat di baliknya. */
 /* Iframe dibuat lebih lebar dari kartu: kartu memotong sisi kanan, jadi ikon di kanan kotak cari tidak terlihat. */
-.radio iframe { display: block; width: calc(100% + 240px); max-width: none; height: var(--radio-ringkas); border: 0; opacity: 0.78; transition: height 0.3s ease; }
+.radio-kotak { padding: 0 10px 10px; overflow: hidden; }
+.radio iframe { display: block; width: calc(100% + 240px); max-width: none; height: var(--radio-ringkas); border: 0; border-radius: 14px; opacity: 0.78; transition: height 0.3s ease; }
 .radio.terbuka iframe { height: min(70vh, 620px); }
 
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
