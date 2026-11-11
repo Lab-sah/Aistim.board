@@ -39,14 +39,16 @@ body {
 /* Atas: kartu jam dan kartu radio. Di layar sempit bertumpuk, di desktop berdampingan. */
 .atas { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .atas .jam, .atas .radio { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
-.radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.35); }
+.radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
 /* Tinggi tetap: hanya bagian atas RadioTune (kotak cari) yang tampil. */
 .radio-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
 .radio-bar .pins-btn { white-space: nowrap; }
 .radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
 /* Tinggi ringkas: hanya baris kotak cari RadioTune yang tampil. Banner "Dapatkan di Google Play" di bawahnya terpotong. Atur bila perlu. */
 .radio { --radio-ringkas: 62px; }
-.radio iframe { display: block; width: 100%; max-width: 100%; height: var(--radio-ringkas); border: 0; transition: height 0.3s ease; }
+/* Transparan seperti kartu jam: isi iframe dibuat setengah tembus pandang, latar kartu terlihat di baliknya. */
+/* Iframe dibuat lebih lebar dari kartu: kartu memotong sisi kanan, jadi ikon di kanan kotak cari tidak terlihat. */
+.radio iframe { display: block; width: calc(100% + 240px); max-width: none; height: var(--radio-ringkas); border: 0; opacity: 0.78; transition: height 0.3s ease; }
 .radio.terbuka iframe { height: min(70vh, 620px); }
 
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
