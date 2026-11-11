@@ -28,8 +28,12 @@
         </figure>
       </section>
       <!-- Radio: pemutar RadioTune.fm disematkan di sebelah jam -->
-      <section class="radio" aria-label="Radio">
-        <iframe src="https://www.radiotune.fm/id-id/" title="RadioTune.fm" allow="autoplay" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <section id="radio" class="radio" aria-label="Radio">
+        <div class="radio-bar">
+          <span class="radio-judul">Radio</span>
+          <button id="radio-lihat" class="pins-btn" type="button" aria-expanded="false" aria-controls="radio-iframe">Lihat semua ⤓</button>
+        </div>
+        <iframe id="radio-iframe" src="https://www.radiotune.fm/id-id/" title="RadioTune.fm" allow="autoplay" loading="lazy" referrerpolicy="no-referrer"></iframe>
       </section>
     </div>
 

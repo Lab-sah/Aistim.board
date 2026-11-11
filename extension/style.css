@@ -41,7 +41,10 @@ body {
 .atas .jam, .atas .radio { width: 100%; max-width: 460px; }
 .radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.35); }
 /* Tinggi tetap: hanya bagian atas RadioTune (kotak cari) yang tampil. */
-.radio iframe { display: block; width: 100%; height: 150px; border: 0; }
+.radio-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
+.radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
+.radio iframe { display: block; width: 100%; height: 150px; border: 0; transition: height 0.3s ease; }
+.radio.terbuka iframe { height: min(70vh, 620px); }
 
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
    mengikuti sisi yang sedang tampil, jadi sisi depan tidak ikut setinggi sisi belakang yang lebih panjang. */
@@ -213,7 +216,6 @@ dialog button[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) { .flip-in, .face { transition: none; } }
 @media (min-width: 768px) {
   .jam, .pins, .upd-pill { max-width: 960px; }
-  .atas { flex-direction: row; align-items: flex-start; justify-content: center; max-width: 960px; }
   .pin-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } /* desktop: 8 kolom */
   .pin-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 260px; }
 }

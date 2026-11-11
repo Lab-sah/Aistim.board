@@ -273,6 +273,13 @@ function putar(belakang) {
   else setTimeout(() => $("btn-flip").focus({ preventScroll: true }), 320); // sisi depan baru terlihat setelah setengah putaran
 }
 $("btn-flip").addEventListener("click", () => putar(true));
+
+// Radio: ringkas (hanya bagian atas RadioTune) atau lihat semua (tinggi diperbesar)
+$("radio-lihat").addEventListener("click", () => {
+  const terbuka = $("radio").classList.toggle("terbuka");
+  $("radio-lihat").setAttribute("aria-expanded", String(terbuka));
+  $("radio-lihat").textContent = terbuka ? "Ringkas ⤒" : "Lihat semua ⤓";
+});
 $("btn-flip-balik").addEventListener("click", () => putar(false));
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && flipKartu.classList.contains("balik") && !document.querySelector("dialog[open]")) putar(false);
