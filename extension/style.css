@@ -38,7 +38,7 @@ body {
 
 /* Atas: kartu jam. Kartu radio ada di bawah menu. */
 .atas { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.atas .jam { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
+.atas .jam { width: 100%; min-width: 0; box-sizing: border-box; }
 .radio { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
 .radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
 /* Tinggi tetap: hanya bagian atas RadioTune (kotak cari) yang tampil. */
