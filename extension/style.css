@@ -36,9 +36,10 @@ body {
 .quote blockquote { margin: 0 auto; max-width: 34em; font-size: clamp(14px, 3.9vw, 18px); font-style: italic; line-height: 1.55; text-wrap: balance; }
 .quote figcaption { margin-top: 8px; font-size: clamp(11px, 3vw, 14px); letter-spacing: 0.02em; opacity: 0.7; }
 
-/* Atas: kartu jam dan kartu radio. Di layar sempit bertumpuk, di desktop berdampingan. */
+/* Atas: kartu jam. Kartu radio ada di bawah menu. */
 .atas { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.atas .jam, .atas .radio { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
+.atas .jam { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
+.radio { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
 .radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
 /* Tinggi tetap: hanya bagian atas RadioTune (kotak cari) yang tampil. */
 .radio-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
