@@ -529,8 +529,6 @@ function gambarJam(d) {
   c.clearRect(0, 0, s, s);
   c.beginPath();
   c.arc(cx, cy, R, 0, Math.PI * 2);
-  c.fillStyle = "rgba(255,255,255,0.08)";
-  c.fill();
   c.lineWidth = Math.max(1.5, s * 0.012);
   c.strokeStyle = "rgba(255,255,255,0.35)";
   c.stroke();
