@@ -1565,6 +1565,7 @@ async function segarSholat() {
     }
   }
   renderSholat(now);
+  perbaruiNamaLokasi();
 }
 function pesanLokasiGagal(err) {
   const kode = err && err.code;
@@ -1572,6 +1573,31 @@ function pesanLokasiGagal(err) {
   if (kode === 2) return "Lokasi tidak tersedia. Pastikan Location Services untuk Chrome aktif di Pengaturan macOS.";
   if (kode === 3) return "Waktu habis saat mencari lokasi. Tekan Deteksi untuk mencoba lagi.";
   return "Gagal mendeteksi lokasi" + (err && err.message ? ": " + err.message : ".") + " Pilih kota dari daftar.";
+}
+// Nama lokasi untuk ikon peta: nama kota pilihan, atau nama wilayah dari koordinat (OpenStreetMap Nominatim, dicache)
+async function perbaruiNamaLokasi() {
+  const el = $("sholat-lokasi-nama");
+  if (sholatSumber.tipe === "kota") { el.textContent = sholatSumber.kota; return; }
+  const { lat, lon } = sholatSumber;
+  const kunci = "lokasi-nama-" + lat + "-" + lon;
+  el.textContent = "Mencari nama lokasi…";
+  let nama = null;
+  try { nama = await store.get(kunci, null); } catch (e) {}
+  if (!nama) {
+    try {
+      const r = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=id&lat=" + lat + "&lon=" + lon, { cache: "force-cache" });
+      if (r.ok) {
+        const j = await r.json();
+        const a = j.address || {};
+        const kota = a.city || a.town || a.municipality || a.county || a.village || "";
+        nama = [kota, a.state || ""].filter(Boolean).join(", ") || null;
+        if (nama) store.set(kunci, nama).catch(() => {});
+      }
+    } catch (e) {}
+  }
+  // Jika lokasi sudah berganti selama menunggu, jangan timpa nama yang baru
+  if (sholatSumber.tipe !== "koor" || sholatSumber.lat !== lat || sholatSumber.lon !== lon) return;
+  el.textContent = nama || (lat + ", " + lon);
 }
 function sinkronkanPilihanSholat() {
   $("sholat-kota").value = sholatSumber.tipe === "koor" ? SHOLAT_LOKASI : sholatSumber.kota;
