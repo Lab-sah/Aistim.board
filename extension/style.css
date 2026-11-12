@@ -141,22 +141,24 @@ body {
   flex: none;
   width: var(--ic, 56px);
   height: var(--ic, 56px);
-  border-radius: 50%;
+  /* Ikon gaya macOS: kotak membulat (squircle) dengan sorot tipis dan bayangan lembut */
+  border-radius: 22%;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   font-size: 20px;
   font-weight: 500;
   line-height: 1;
 }
 .pin-ic img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.pin-ic.fav { background: rgba(255, 255, 255, 0.92); }
+.pin-ic.fav { background: linear-gradient(180deg, #ffffff 0%, #eef0f4 100%); }
 .pin-ic.fav img { width: 58%; height: 58%; object-fit: contain; }
 .pin-ic.gambar { background: none; }
 /* Tile "+": ukuran dan warna sama dengan tile tambah di halaman tab baru Brave (lingkaran 44px, + tipis 21px, tanpa teks) */
 .pin.tambah { padding-top: 6px; }
 .pin.tambah:hover { background: none; }
 .pin.tambah:hover .pin-ic { filter: brightness(0.94); }
-.pin-ic.plus { background: #ededf7; color: #43464d; }
+.pin-ic.plus { background: linear-gradient(180deg, #f7f7fb 0%, #dcdde6 100%); color: #43464d; }
 .pin-ic.plus svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.35; }
 .pin-nm { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; opacity: 0.92; }
 
