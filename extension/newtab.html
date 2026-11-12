@@ -22,7 +22,9 @@
     <div class="atas">
       <!-- Kartu atas: jam dan kata-kata -->
       <section class="jam" aria-label="Jam dan kata-kata">
+        <button id="jam-gaya" class="pins-btn jam-gaya" type="button" aria-pressed="false">Digital</button>
         <canvas id="jam-canvas" class="jam-canvas" role="img" aria-label="Jam"></canvas>
+        <div id="jam-digital" class="jam-digital" hidden><span id="jam-digital-waktu"></span><span id="jam-digital-detik" class="jam-digital-detik"></span></div>
         <div id="date" class="date"></div>
         <figure class="quote">
           <blockquote id="quote-text"></blockquote>

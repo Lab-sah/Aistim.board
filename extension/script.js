@@ -640,10 +640,27 @@ function gambarJam(d) {
   c.fill();
 }
 // Digambar tepat di setiap pergantian detik (cukup murah, tidak perlu 60 fps)
+// Gaya jam: "analog" (kanvas) atau "digital" (teks HH:MM dan detik). Pilihan disimpan di browser.
+let jamGaya = "analog";
+function gambarDigital(d) {
+  const jam = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  const detik = String(d.getSeconds()).padStart(2, "0");
+  if ($("jam-digital-waktu").textContent !== jam) $("jam-digital-waktu").textContent = jam;
+  $("jam-digital-detik").textContent = detik;
+}
+function terapkanGayaJam() {
+  const digital = jamGaya === "digital";
+  jamCanvas.hidden = digital;
+  $("jam-digital").hidden = !digital;
+  $("jam-gaya").textContent = digital ? "Analog" : "Digital";
+  $("jam-gaya").setAttribute("aria-pressed", String(digital));
+  gambarDigital(new Date());
+}
 function jamLoop() {
   clearTimeout(jamTimer);
   const d = new Date();
-  gambarJam(d);
+  if (jamGaya === "digital") gambarDigital(d);
+  else gambarJam(d);
   jamTimer = setTimeout(jamLoop, 1000 - (d.getTime() % 1000) + 5);
 }
 window.addEventListener("resize", () => { jamUkur(); jamLoop(); });
@@ -1598,6 +1615,13 @@ async function mulaiSholat() {
 async function mulai() {
   jamUkur();
   jamLoop();
+  try { jamGaya = (await store.get("jamGaya", "analog")) === "digital" ? "digital" : "analog"; } catch (e) {}
+  terapkanGayaJam();
+  $("jam-gaya").addEventListener("click", () => {
+    jamGaya = jamGaya === "digital" ? "analog" : "digital";
+    terapkanGayaJam();
+    store.set("jamGaya", jamGaya).catch(() => {});
+  });
   tick();
   initQuote();
   mulaiSholat();
