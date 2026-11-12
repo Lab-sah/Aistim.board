@@ -5,10 +5,12 @@
   --kaca: rgba(255, 255, 255, 0.05);
   --kaca-tepi: rgba(255, 255, 255, 0.34);
   --kaca-blur: blur(26px) saturate(180%);
-  --kaca-bayang: 0 12px 34px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  /* Bayangan berlapis: dekat tipis + jauh lembut, plus sorot atas dan bayangan dalam di bawah agar kartu terlihat timbul */
+  --kaca-bayang: 0 2px 6px rgba(0, 0, 0, 0.14), 0 14px 36px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -10px 24px rgba(255, 255, 255, 0.04);
   --kaca-radius: 28px;
 }
 body {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   margin: 0;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
