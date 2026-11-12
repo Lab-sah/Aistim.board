@@ -180,10 +180,14 @@ const PLUS = '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M11.7 22h20.6
 const IKON_UBAH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>';
 const IKON_HAPUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>';
 
-function pinTile(p) {
+function pinTile(p, bersama = false) {
   const a = document.createElement("a");
   a.className = "pin";
   a.href = p.href;
+  if (!bersama) { // menu pribadi bisa diseret untuk mengubah urutan
+    a.dataset.id = p.id;
+    a.draggable = true;
+  }
   a.title = p.href;
   const nm = document.createElement("span");
   nm.className = "pin-nm";
@@ -251,12 +255,51 @@ function pinBaris(p, bersama) {
   tr.append(tdIkon, tdNama, tdLink, tdAksi);
   return tr;
 }
+// Urutkan menu pribadi dengan seret-lepas di sisi depan (urutan disimpan di browser). Menu bersama tidak bisa diseret.
+let seretId = null, seretJatuh = false;
+const pinGrid = $("pin-grid");
+pinGrid.addEventListener("dragstart", (e) => {
+  const t = e.target.closest && e.target.closest(".pin[data-id]");
+  if (!t) return;
+  seretId = t.dataset.id;
+  seretJatuh = false;
+  t.classList.add("seret");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", seretId);
+});
+pinGrid.addEventListener("dragover", (e) => {
+  if (!seretId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  const drag = pinGrid.querySelector(".pin.seret");
+  const t = e.target.closest && e.target.closest(".pin[data-id]");
+  if (!drag || !t || t === drag) return;
+  if (drag.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) t.after(drag);
+  else t.before(drag);
+});
+pinGrid.addEventListener("drop", (e) => { if (seretId) { e.preventDefault(); seretJatuh = true; } });
+pinGrid.addEventListener("dragend", async () => {
+  const drag = pinGrid.querySelector(".pin.seret");
+  if (drag) drag.classList.remove("seret");
+  const id = seretId;
+  seretId = null;
+  if (!id) return;
+  if (!seretJatuh) { renderPins(); return; } // dilepas di luar grid: kembalikan urutan semula
+  const urutan = [...pinGrid.querySelectorAll(".pin[data-id]")].map((el) => el.dataset.id);
+  const peta = new Map(pins.map((p) => [p.id, p]));
+  const baru = urutan.map((x) => peta.get(x)).filter(Boolean);
+  if (baru.length === pins.length) {
+    pins = baru;
+    try { await store.set("pins", pins); } catch (err) {}
+  }
+  renderPins();
+});
 function renderPins() {
   const sendiri = new Set(pins.map((p) => p.id)); // link yang sama dengan menu pribadi hanya ditampilkan sekali
   const semua = [...pinsV.filter((p) => !sendiri.has(p.id)).map((p) => [p, true]), ...pins.map((p) => [p, false])];
   const g = $("pin-grid");
   g.textContent = "";
-  semua.forEach(([p]) => g.append(pinTile(p)));
+  semua.forEach(([p, bersama]) => g.append(pinTile(p, bersama)));
   if (pins.length < MAX_PIN) g.append(tambahTile());
   const l = $("pin-list");
   l.textContent = "";

@@ -143,6 +143,8 @@ body {
   cursor: pointer;
 }
 .pin:hover { background: rgba(255, 255, 255, 0.1); }
+.pin[data-id] { cursor: grab; }
+.pin.seret { opacity: 0.45; transform: scale(0.94); }
 .pin-ic {
   display: grid;
   place-items: center;
