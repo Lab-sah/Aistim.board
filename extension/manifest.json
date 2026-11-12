@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Aistim Board",
-  "version": "1.4.41",
+  "version": "1.4.43",
   "description": "Tab baru berisi jam, kata-kata harian, dan menu pintasan: tambah, ubah, dan hapus link dengan ikon otomatis dari situsnya.",
   "permissions": [
     "storage"

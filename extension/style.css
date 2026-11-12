@@ -1,9 +1,17 @@
 * { box-sizing: border-box; }
 
+:root {
+  /* Liquid Glass: kaca transparan dengan blur, tepi terang tipis, dan sudut sangat membulat */
+  --kaca: rgba(255, 255, 255, 0.05);
+  --kaca-tepi: rgba(255, 255, 255, 0.34);
+  --kaca-blur: blur(26px) saturate(180%);
+  --kaca-bayang: 0 12px 34px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  --kaca-radius: 28px;
+}
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
   color: #fff;
   background: var(--latar, linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%));
   background-attachment: fixed;
@@ -29,7 +37,14 @@ body {
 .pins { --ic: 44px; }
 
 /* Kartu atas: jam dan kata-kata */
-.jam { padding: 18px 20px 20px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); text-align: center; }
+.jam { padding: 18px 20px 20px; border-radius: var(--kaca-radius); text-align: center; }
+.jam, .sholat, .face, .radio {
+  background: var(--kaca);
+  backdrop-filter: var(--kaca-blur);
+  -webkit-backdrop-filter: var(--kaca-blur);
+  border: 1px solid var(--kaca-tepi);
+  box-shadow: var(--kaca-bayang);
+}
 .jam-canvas { display: block; width: clamp(190px, 62vw, 260px); height: auto; aspect-ratio: 1 / 1; margin: 0 auto 4px; }
 .date { margin-top: 4px; font-size: 15px; opacity: 0.85; }
 .quote { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
@@ -40,13 +55,13 @@ body {
 .atas { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .atas .jam { width: 100%; min-width: 0; box-sizing: border-box; }
 .radio { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; }
-.radio { border-radius: 20px; overflow: hidden; background: rgba(0, 0, 0, 0.2); }
+.radio { border-radius: var(--kaca-radius); overflow: hidden; }
 /* Tinggi tetap: hanya bagian atas RadioTune (kotak cari) yang tampil. */
 .radio-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
 .radio-bar .pins-btn { white-space: nowrap; }
 .radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
 /* Kartu jadwal sholat: di kanan jam di desktop, di bawah jam di layar sempit */
-.sholat { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; padding: 16px 18px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); color: #fff; }
+.sholat { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; padding: 16px 18px; border-radius: var(--kaca-radius); color: #fff; }
 .sholat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .sholat-judul { margin: 0; font-size: 16px; white-space: nowrap; }
 .sholat-head > div:first-child { min-width: 0; flex: 1 1 auto; }
@@ -78,8 +93,12 @@ body {
   align-self: start;
   min-width: 0;
   padding: clamp(14px, 4vw, 20px);
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--kaca-radius);
+  background: var(--kaca);
+  backdrop-filter: var(--kaca-blur);
+  -webkit-backdrop-filter: var(--kaca-blur);
+  border: 1px solid var(--kaca-tepi);
+  box-shadow: var(--kaca-bayang);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transition: visibility 0s linear 0.3s; /* sisi yang tertutup disembunyikan setelah setengah putaran: tidak bisa difokus atau diketuk */
@@ -90,7 +109,7 @@ body {
 
 .pins-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; min-height: 34px; }
 .pins-head h2 { margin: 0; font-size: 16px; }
-.pins-btn { min-height: 32px; padding: 5px 14px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; background: none; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.pins-btn { min-height: 32px; padding: 5px 14px; border: 1px solid var(--kaca-tepi); border-radius: 999px; background: var(--kaca); backdrop-filter: var(--kaca-blur); -webkit-backdrop-filter: var(--kaca-blur); color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
 .pins-btn:hover { background: rgba(255, 255, 255, 0.15); }
 .pins-btn.pri { background: #2563eb; border-color: #2563eb; }
 .pins-btn.pri:hover { background: #1d4ed8; }
