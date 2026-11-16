@@ -667,7 +667,7 @@ window.addEventListener("resize", kUkur);
 function kTambah(x, y) {
   if (!kursorGerak) return;
   const now = performance.now();
-  if (now - kTerakhir < 110) return; // satu cincin tiap 110 ms saat kursor bergerak (lebih jarang, lebih tenang)
+  if (now - kTerakhir < 170) return; // satu cincin tiap 170 ms saat kursor bergerak (pelan dan tenang)
   kTerakhir = now;
   kRiak.push({ x, y, t: now });
   if (kRiak.length > 20) kRiak.shift();
@@ -683,10 +683,10 @@ function kFrame(now) {
   kCtx.setTransform(kDpr, 0, 0, kDpr, 0, 0);
   kCtx.clearRect(0, 0, kW, kH);
   for (let i = kRiak.length - 1; i >= 0; i--) {
-    const r = kRiak[i], u = (now - r.t) / 1100;
+    const r = kRiak[i], u = (now - r.t) / 1800;
     if (u >= 1) { kRiak.splice(i, 1); continue; }
     const ease = 1 - Math.pow(1 - u, 2); // melebar dengan lembut
-    const rad = 8 + ease * 40, amp = 1.4 * (1 - u), fase = now * 0.008 + r.t;
+    const rad = 8 + ease * 32, amp = 0.9 * (1 - u), fase = now * 0.005 + r.t;
     kCtx.beginPath();
     for (let k = 0; k <= 72; k++) { // lingkaran yang bergelombang halus
       const a = (k / 72) * Math.PI * 2;
@@ -695,8 +695,8 @@ function kFrame(now) {
       if (k === 0) kCtx.moveTo(px, py); else kCtx.lineTo(px, py);
     }
     kCtx.closePath();
-    kCtx.lineWidth = 0.8 + (1 - u) * 0.8;
-    kCtx.strokeStyle = "rgba(255,255,255," + ((1 - u) * (1 - u) * 0.4).toFixed(3) + ")";
+    kCtx.lineWidth = 0.6 + (1 - u) * 0.6;
+    kCtx.strokeStyle = "rgba(255,255,255," + ((1 - u) * (1 - u) * 0.3).toFixed(3) + ")";
     kCtx.stroke();
   }
   if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
