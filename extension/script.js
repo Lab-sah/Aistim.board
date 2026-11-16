@@ -691,6 +691,36 @@ function kTambah(x, y) {
   if (kRiak.length > 20) kRiak.shift();
   if (!kRaf) kRaf = requestAnimationFrame(kFrame);
 }
+// Riak air saat diklik: tiga cincin berjarak yang melebar dari titik klik, dengan tint biru tipis di tengah
+function kRiple(x, y) {
+  if (!kursorGerak) return;
+  kRiak.push({ x, y, t: performance.now(), ripple: true });
+  if (kRiak.length > 20) kRiak.shift();
+  if (!kRaf) kRaf = requestAnimationFrame(kFrame);
+}
+function kGambarRiple(r, now) {
+  const u = (now - r.t) / 2200;
+  const lebar = 150;
+  const e = 1 - Math.pow(1 - u, 2);
+  const tint = lebar * (1 - Math.pow(1 - u, 3)) + 6;
+  const g = kCtx.createRadialGradient(r.x, r.y, 0, r.x, r.y, tint);
+  g.addColorStop(0, "rgba(120,200,255," + (0.16 * (1 - u)).toFixed(3) + ")");
+  g.addColorStop(1, "rgba(120,200,255,0)");
+  kCtx.fillStyle = g;
+  kCtx.beginPath();
+  kCtx.arc(r.x, r.y, tint, 0, Math.PI * 2);
+  kCtx.fill();
+  for (let k = 0; k < 3; k++) { // tiga cincin, masing-masing tertinggal sedikit
+    const v = u - k * 0.12;
+    if (v <= 0) continue;
+    const rad = 6 + (1 - Math.pow(1 - v, 3)) * lebar;
+    kCtx.beginPath();
+    kCtx.arc(r.x, r.y, rad, 0, Math.PI * 2);
+    kCtx.lineWidth = 1.4 - k * 0.3;
+    kCtx.strokeStyle = "rgba(190,230,255," + ((1 - v) * (1 - v) * 0.55 * (1 - k * 0.25)).toFixed(3) + ")";
+    kCtx.stroke();
+  }
+}
 function kFrame(now) {
   kRaf = 0;
   if (now - kGambarTerakhir < 1000 / 60) { // 60 fps supaya gerakan mulus
@@ -701,7 +731,13 @@ function kFrame(now) {
   kCtx.setTransform(kDpr, 0, 0, kDpr, 0, 0);
   kCtx.clearRect(0, 0, kW, kH);
   for (let i = kRiak.length - 1; i >= 0; i--) {
-    const r = kRiak[i], u = (now - r.t) / 1800;
+    const r = kRiak[i];
+    if (r.ripple) {
+      if ((now - r.t) / 2200 >= 1) { kRiak.splice(i, 1); continue; }
+      kGambarRiple(r, now);
+      continue;
+    }
+    const u = (now - r.t) / 1800;
     if (u >= 1) { kRiak.splice(i, 1); continue; }
     const ease = 1 - Math.pow(1 - u, 2); // melebar dengan lembut
     const rad = 8 + ease * 32, amp = 0.9 * (1 - u), fase = now * 0.005 + r.t;
@@ -719,7 +755,8 @@ function kFrame(now) {
   }
   if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
 }
-["pointermove", "pointerdown"].forEach((ev) => window.addEventListener(ev, (e) => kTambah(e.clientX, e.clientY), { passive: true }));
+window.addEventListener("pointermove", (e) => kTambah(e.clientX, e.clientY), { passive: true });
+window.addEventListener("pointerdown", (e) => kRiple(e.clientX, e.clientY), { passive: true });
 
 // ---------- Jam analog: digambar di canvas, diperbarui tiap detik ----------
 const jamCanvas = $("jam-canvas");
