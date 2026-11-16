@@ -734,6 +734,14 @@ function gambarJam(d) {
   c.clearRect(0, 0, s, s);
   c.beginPath();
   c.arc(cx, cy, R, 0, Math.PI * 2);
+  if (jamLogo.complete && jamLogo.naturalWidth) { // logo Aistim mengisi seluruh wajah jam
+    c.save();
+    c.clip();
+    c.drawImage(jamLogo, cx - R, cy - R, R * 2, R * 2);
+    c.fillStyle = "rgba(0,0,0,0.28)"; // lapisan gelap tipis supaya angka tetap terbaca
+    c.fillRect(cx - R, cy - R, R * 2, R * 2);
+    c.restore();
+  }
   c.lineWidth = Math.max(1.5, s * 0.012);
   c.strokeStyle = "rgba(255,255,255,0.35)";
   c.stroke();
@@ -754,15 +762,6 @@ function gambarJam(d) {
   for (let i = 1; i <= 12; i++) {
     const a = (i * Math.PI) / 6 - Math.PI / 2;
     c.fillText(String(i), cx + Math.cos(a) * R * 0.68, cy + Math.sin(a) * R * 0.68);
-  }
-  if (jamLogo.complete && jamLogo.naturalWidth) { // logo Aistim di tengah wajah jam, jarum digambar di atasnya
-    const u = s * 0.3;
-    c.save();
-    c.beginPath();
-    c.arc(cx, cy, u / 2, 0, Math.PI * 2);
-    c.clip();
-    c.drawImage(jamLogo, cx - u / 2, cy - u / 2, u, u);
-    c.restore();
   }
   const detik = d.getSeconds(), menit = d.getMinutes() + detik / 60, jam = (d.getHours() % 12) + menit / 60;
   jarum(c, cx, cy, (jam * Math.PI) / 6 - Math.PI / 2, R * 0.5, s * 0.035, "#ffffff");
