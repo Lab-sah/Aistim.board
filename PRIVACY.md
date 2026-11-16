@@ -18,6 +18,8 @@ Ada lima jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari l
 
 **5. Jadwal sholat**: saat tab dibuka dan saat kota diganti, extension mengambil kalender jadwal sholat satu bulan dari `https://api.aladhan.com/v1/calendarByCity/...`. Yang dikirim hanya nama kota yang kamu pilih (default Jakarta) atau, jika memilih **Lokasi saya**, koordinat perangkat yang dibulatkan ke 2 desimal (sekitar 1 km), serta metode perhitungan, bulan, dan tahun. Lokasi hanya diminta lewat izin lokasi dari browser, dan dicoba saat pertama kali tab dibuka; kalau ditolak, dipakai kota. Tanpa token dan tanpa cookie. Jadwal yang sudah diambil disimpan di browser agar tidak diminta ulang dalam bulan yang sama. Koordinat tersimpan di browser (kunci `sholatSumber`). Untuk menampilkan nama lokasi (mis. "Jakarta Selatan, DKI Jakarta"), koordinat yang sama juga dikirim ke layanan reverse geocoding OpenStreetMap Nominatim (`https://nominatim.openstreetmap.org/reverse`). Hasilnya dicache di browser (kunci `lokasi-nama-<lat>-<lon>`).
 
+**5. Kalender libur**: panel kalender memuat tampilan kalender libur Indonesia yang publik dari `calendar.google.com` (Google Calendar). Permintaan ini tanpa token, tanpa cookie, dan tanpa data pribadimu. Tidak ada kalender pribadimu yang ditampilkan.
+
 Extension tidak meminta izin situs (`host_permissions`) apa pun; izin yang dipakai hanya `storage`.
 
 ## Kode jarak jauh

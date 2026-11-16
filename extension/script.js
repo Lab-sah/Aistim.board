@@ -337,6 +337,12 @@ $("radio-lihat").addEventListener("click", () => {
   $("radio-lihat").setAttribute("aria-expanded", String(terbuka));
   $("radio-lihat").textContent = terbuka ? "Tutup ⤒" : "Lihat semua ⤓";
 });
+// Kalender libur Indonesia: sama seperti Radio (tertutup dulu, "Lihat semua" untuk membuka)
+$("kalender-lihat").addEventListener("click", () => {
+  const terbuka = $("kalender").classList.toggle("terbuka");
+  $("kalender-lihat").setAttribute("aria-expanded", String(terbuka));
+  $("kalender-lihat").textContent = terbuka ? "Tutup ⤒" : "Lihat semua ⤓";
+});
 $("btn-flip-balik").addEventListener("click", () => putar(false));
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && flipKartu.classList.contains("balik") && !document.querySelector("dialog[open]")) putar(false);
