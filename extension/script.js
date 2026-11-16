@@ -641,7 +641,7 @@ window.addEventListener("resize", kUkur);
 function kTambah(x, y) {
   if (!kursorGerak) return;
   const now = performance.now();
-  if (now - kTerakhir < 80) return; // satu cincin tiap 80 ms saat kursor bergerak
+  if (now - kTerakhir < 110) return; // satu cincin tiap 110 ms saat kursor bergerak (lebih jarang, lebih tenang)
   kTerakhir = now;
   kRiak.push({ x, y, t: now });
   if (kRiak.length > 20) kRiak.shift();
@@ -649,7 +649,7 @@ function kTambah(x, y) {
 }
 function kFrame(now) {
   kRaf = 0;
-  if (now - kGambarTerakhir < 1000 / 30) { // dibatasi 30 fps
+  if (now - kGambarTerakhir < 1000 / 60) { // 60 fps supaya gerakan mulus
     if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
     return;
   }
@@ -657,19 +657,20 @@ function kFrame(now) {
   kCtx.setTransform(kDpr, 0, 0, kDpr, 0, 0);
   kCtx.clearRect(0, 0, kW, kH);
   for (let i = kRiak.length - 1; i >= 0; i--) {
-    const r = kRiak[i], u = (now - r.t) / 900;
+    const r = kRiak[i], u = (now - r.t) / 1100;
     if (u >= 1) { kRiak.splice(i, 1); continue; }
-    const rad = 8 + u * 44, amp = 2.5 * (1 - u), fase = now * 0.012 + r.t;
+    const ease = 1 - Math.pow(1 - u, 2); // melebar dengan lembut
+    const rad = 8 + ease * 40, amp = 1.4 * (1 - u), fase = now * 0.008 + r.t;
     kCtx.beginPath();
-    for (let k = 0; k <= 48; k++) { // lingkaran yang bergelombang
-      const a = (k / 48) * Math.PI * 2;
+    for (let k = 0; k <= 72; k++) { // lingkaran yang bergelombang halus
+      const a = (k / 72) * Math.PI * 2;
       const rr = rad + Math.sin(a * 4 + fase) * amp;
       const px = r.x + Math.cos(a) * rr, py = r.y + Math.sin(a) * rr;
       if (k === 0) kCtx.moveTo(px, py); else kCtx.lineTo(px, py);
     }
     kCtx.closePath();
-    kCtx.lineWidth = 1 + (1 - u) * 1.2;
-    kCtx.strokeStyle = "rgba(255,255,255," + ((1 - u) * 0.55).toFixed(3) + ")";
+    kCtx.lineWidth = 0.8 + (1 - u) * 0.8;
+    kCtx.strokeStyle = "rgba(255,255,255," + ((1 - u) * (1 - u) * 0.4).toFixed(3) + ")";
     kCtx.stroke();
   }
   if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
