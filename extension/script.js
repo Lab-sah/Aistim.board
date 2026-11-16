@@ -818,7 +818,7 @@ function bacaKutipan(j) {
 // Salinan lokal dipakai dulu, lalu dicek ulang dari GitHub bila sudah lebih dari sehari. Gagal = tetap pakai daftar yang ada.
 async function muatKutipan() {
   try {
-    const c = await store.get("kutipanV", null);
+    const c = await store.get("kutipanV2", null);
     if (c && Array.isArray(c.items) && c.items.length) KUTIPAN = bacaKutipan(c.items);
     initQuote();
     if (c && typeof c.t === "number" && Date.now() - c.t < KUTIPAN_JEDA) return;
@@ -828,7 +828,7 @@ async function muatKutipan() {
     if (!r.ok) return;
     const items = bacaKutipan(await r.json());
     KUTIPAN = items;
-    await store.set("kutipanV", { t: Date.now(), items });
+    await store.set("kutipanV2", { t: Date.now(), items });
     initQuote();
   } catch (e) {}
 }
