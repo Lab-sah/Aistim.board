@@ -653,7 +653,9 @@ if (kartuGerak) {
 // Latar animasi dari bg/efek/: iframe dimuat sekali per latar, dikosongkan saat latar lain dipilih (animasinya berhenti)
 function efekNyala(path, diatas) {
   const el = $("efek-iframe");
-  el.classList.toggle("diatas", !!path && diatas === true); // laba-laba: tampil di atas kartu, klik tetap tembus
+  // "pojok": jendela kecil di pojok kiri atas (laba-laba); "penuh": seluruh layar di atas kartu (burung). Klik tetap tembus.
+  el.classList.toggle("diatas", !!path && diatas === "pojok");
+  el.classList.toggle("diatas-penuh", !!path && diatas === "penuh");
   if (!path) {
     el.hidden = true;
     if (el.getAttribute("src") !== "about:blank") el.src = "about:blank";
@@ -873,8 +875,8 @@ const LATAR = [
   { id: "ombak", nama: "Ombak senja", css: "linear-gradient(160deg, #2b5876 0%, #e8805e 55%, #0d3d57 100%)", adegan: "ombak" },
   // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
   // Demo animasi CodePen (MIT), dimuat sebagai latar lokal (bg/efek/)
-  { id: "efek-laba", nama: "Laba-laba pelangi", css: "linear-gradient(160deg, #1a0b2e 0%, #6d28d9 50%, #0ea5e9 100%)", efek: "bg/efek/laba-laba-pelangi/index.html", efekAtas: true },
-  { id: "efek-burung", nama: "Burung berkelompok", css: "linear-gradient(160deg, #1e3a5f 0%, #7dd3fc 60%, #e0f2fe 100%)", efek: "bg/efek/burung/index.html" },
+  { id: "efek-laba", nama: "Laba-laba pelangi", css: "linear-gradient(160deg, #1a0b2e 0%, #6d28d9 50%, #0ea5e9 100%)", efek: "bg/efek/laba-laba-pelangi/index.html", efekAtas: "pojok" },
+  { id: "efek-burung", nama: "Burung berkelompok", css: "linear-gradient(160deg, #1e3a5f 0%, #7dd3fc 60%, #e0f2fe 100%)", efek: "bg/efek/burung/index.html", efekAtas: "penuh" },
   { id: "efek-gravitasi", nama: "Gravitasi", css: "linear-gradient(160deg, #000 0%, #1e293b 60%, #334155 100%)", efek: "bg/efek/gravitasi/index.html" },
   { id: "efek-sakura", nama: "Sakura", css: "linear-gradient(160deg, #3b0764 0%, #f9a8d4 60%, #fce7f3 100%)", efek: "bg/efek/sakura/index.html" },
   { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
@@ -1462,7 +1464,7 @@ function terapkanLatar() {
   ikanOn = a.ikan === true;
   if (ikanOn && !ikan.length) ikanBuat();
   gelNyala(a.id === "akuarium"); // gelembung hanya untuk latar Akuarium
-  efekNyala(a.efek || null, a.efekAtas === true);
+  efekNyala(a.efek || null, a.efekAtas || null);
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;

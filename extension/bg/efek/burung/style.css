@@ -12,7 +12,7 @@ canvas {
   left: 0;
   bottom: 0;
   right: 0;
-  background: linear-gradient(#B7B0E3, #FFD3D6);
+  background: transparent; /* latar langit dari halaman utama (lihat --latar) */
 }
 
 @keyframes anim {
