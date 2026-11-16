@@ -71,7 +71,7 @@ body {
 a.pins-btn { display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
 /* Tombol tambah acara di atas iframe kalender: menutupi tombol + Google di pojok kanan bawah */
 .kalender-kotak { position: relative; }
-.kalender-plus { display: none; position: absolute; right: 12px; bottom: 12px; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 50%; background: #1a73e8; color: #fff; font-size: 30px; line-height: 1; text-decoration: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); z-index: 2; }
+.kalender-plus { display: none; position: absolute; right: 12px; bottom: 12px; height: 44px; padding: 0 18px; align-items: center; justify-content: center; border-radius: 999px; background: #1a73e8; color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap; text-decoration: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); z-index: 2; }
 .radio.terbuka .kalender-plus { display: inline-flex; }
 .kalender-plus:hover { background: #1765cc; }
 /* Kartu jadwal sholat: di kanan jam di desktop, di bawah jam di layar sempit */
