@@ -32,16 +32,15 @@ body {
 .sholat { --d: 0.9; }
 .flip { --d: 1.3; }
 .radio { --d: 0.8; }
-.kartu-ombak { animation: kartu-ombak 0.9s ease-out; }
-@keyframes kartu-ombak {
-  0% { scale: 1; }
-  30% { scale: 1.012; }
-  60% { scale: 0.996; }
-  100% { scale: 1; }
+.riak-kartu { animation: riak-kartu 1.2s cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay, 0s); }
+@keyframes riak-kartu {
+  0% { translate: 0 0; scale: 1; }
+  30% { translate: var(--dx, 0px) var(--dy, 0px); scale: 1.015; }
+  100% { translate: 0 0; scale: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .jam, .sholat, .flip, .radio { translate: none; }
-  .kartu-ombak { animation: none; }
+  .riak-kartu { animation: none; }
 }
 .efek-iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 0; background: #000; }
 .efek-iframe[hidden] { display: none; }
