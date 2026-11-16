@@ -711,25 +711,35 @@ function kRiple(x, y) {
   if (!kRaf) kRaf = requestAnimationFrame(kFrame);
 }
 function kGambarRiple(r, now) {
-  const u = (now - r.t) / 2200;
-  const lebar = 150;
-  const tint = lebar * (1 - Math.pow(1 - u, 3)) + 6;
+  const u = (now - r.t) / 2600;
+  const lebar = 160;
+  const ease = 1 - Math.pow(1 - u, 3); // melebar sangat pelan di awal dan di akhir
+  // tint air di tengah, dengan bayangan lembut di tepi
+  const tint = lebar * ease + 8;
   const g = kCtx.createRadialGradient(r.x, r.y, 0, r.x, r.y, tint);
-  g.addColorStop(0, "rgba(120,200,255," + (0.16 * (1 - u)).toFixed(3) + ")");
-  g.addColorStop(1, "rgba(120,200,255,0)");
+  g.addColorStop(0, "rgba(120,200,255," + (0.14 * (1 - u) * (1 - u)).toFixed(3) + ")");
+  g.addColorStop(0.8, "rgba(60,120,180," + (0.05 * (1 - u)).toFixed(3) + ")");
+  g.addColorStop(1, "rgba(0,20,40,0)");
   kCtx.fillStyle = g;
   kCtx.beginPath();
   kCtx.arc(r.x, r.y, tint, 0, Math.PI * 2);
   kCtx.fill();
-  for (let k = 0; k < 3; k++) { // tiga cincin, masing-masing tertinggal sedikit
-    const v = u - k * 0.12;
+  for (let k = 0; k < 4; k++) { // empat cincin, masing-masing tertinggal sedikit, dengan bayangan
+    const v = u - k * 0.1;
     if (v <= 0) continue;
-    const rad = 6 + (1 - Math.pow(1 - v, 3)) * lebar;
+    const e = 1 - Math.pow(1 - v, 3);
+    const rad = 4 + e * lebar;
+    const fade = (1 - v) * (1 - v);
+    kCtx.save();
+    kCtx.shadowColor = "rgba(0,30,60," + (0.35 * fade).toFixed(3) + ")";
+    kCtx.shadowBlur = 8;
+    kCtx.shadowOffsetY = 2;
     kCtx.beginPath();
     kCtx.arc(r.x, r.y, rad, 0, Math.PI * 2);
-    kCtx.lineWidth = 1.4 - k * 0.3;
-    kCtx.strokeStyle = "rgba(190,230,255," + ((1 - v) * (1 - v) * 0.55 * (1 - k * 0.25)).toFixed(3) + ")";
+    kCtx.lineWidth = 1.1 - k * 0.2;
+    kCtx.strokeStyle = "rgba(210,236,255," + (fade * 0.6 * (1 - k * 0.2)).toFixed(3) + ")";
     kCtx.stroke();
+    kCtx.restore();
   }
 }
 function kFrame(now) {
@@ -744,7 +754,7 @@ function kFrame(now) {
   for (let i = kRiak.length - 1; i >= 0; i--) {
     const r = kRiak[i];
     if (r.ripple) {
-      if ((now - r.t) / 2200 >= 1) { kRiak.splice(i, 1); continue; }
+      if ((now - r.t) / 2600 >= 1) { kRiak.splice(i, 1); continue; }
       kGambarRiple(r, now);
       continue;
     }
