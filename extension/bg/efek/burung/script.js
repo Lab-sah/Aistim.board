@@ -247,6 +247,14 @@ Bird.Tri = Bird.def(
       var v1 = [this.Vtxs[0].Pt().x, this.Vtxs[0].Pt().y];
       var v2 = [this.Vtxs[1].Pt().x, this.Vtxs[1].Pt().y];
       var v3 = [this.Vtxs[2].Pt().x, this.Vtxs[2].Pt().y];
+      var sk = this.skala || 1;
+      if (sk !== 1) { // burung jauh lebih kecil, dekat lebih besar
+        var cx = (v1[0] + v2[0] + v3[0]) / 3, cy = (v1[1] + v2[1] + v3[1]) / 3;
+        v1 = [cx + (v1[0] - cx) * sk, cy + (v1[1] - cy) * sk];
+        v2 = [cx + (v2[0] - cx) * sk, cy + (v2[1] - cy) * sk];
+        v3 = [cx + (v3[0] - cx) * sk, cy + (v3[1] - cy) * sk];
+      }
+      Bird.$.globalAlpha = this.alfa || 1;
       var col = this.col();
       Bird.$.fillStyle = col;
       Bird.$.strokeStyle = col;
@@ -259,6 +267,7 @@ Bird.Tri = Bird.def(
       Bird.$.closePath();
       Bird.$.fill();
       Bird.$.stroke();
+      Bird.$.globalAlpha = 1;
     },
     rotX: function(a) {
       var ang = a;
@@ -542,6 +551,14 @@ function draw() {
     bird = birds[i] = new Bird.Build();
     bird.phase = Math.floor(Math.random() * 62.83);
     bird.pos = b[i].pos;
+    var kelas = Math.random();
+    if (kelas < 0.25) { // jauh: kecil, sedikit transparan, lebih pelan
+      bird.skala = 0.5; bird.alfa = 0.55; _b.msp = 2;
+    } else if (kelas > 0.8) { // dekat: besar, dan berputar mengelilingi kartu
+      bird.skala = 1.8; _b.orbit = true; _b.ang = Math.random() * 6.283;
+    } else {
+      bird.skala = 1;
+    }
   }
 
   run();
@@ -559,6 +576,11 @@ function draw() {
     var arr = [];
     b.forEach(function(e, i, a) {
       var _b = b[i];
+      if (_b.orbit) {
+        var a = _b.ang + Date.now() * 0.0004;
+        var dx = Math.cos(a) * 420 - _b.pos.x, dz = Math.sin(a) * 420 - _b.pos.z;
+        _b.accel.add(new Bird.Vtr(dx * 0.004, 0, dz * 0.004));
+      }
       _b.run(b);
       var bird = birds[i];
       bird.rot.y = Math.atan2(-_b.vel.z, _b.vel.x);
