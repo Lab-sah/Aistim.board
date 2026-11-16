@@ -15,8 +15,7 @@ KEY = os.environ.get("GEMINI_API_KEY", "")
 PROMPT = (
     "Buat 30 kutipan harian singkat dalam bahasa Indonesia tentang ketenangan, kerja, "
     "kebiasaan kecil, dan semangat. Setiap kalimat maksimal 128 karakter dan tidak boleh "
-    "mengutip tokoh nyata. Untuk penulis pakai \"Aistim\" untuk kalimat buatan sendiri, "
-    "atau \"Peribahasa\" untuk peribahasa Indonesia yang sudah dikenal. "
+    "mengutip tokoh nyata. Untuk penulis selalu pakai \"Aistim\". "
     "Jawab hanya dengan JSON array berisi objek {\"text\": \"...\", \"author\": \"...\"}, tanpa teks lain."
 )
 

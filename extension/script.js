@@ -608,7 +608,7 @@ const QUOTES = [
   { text: "Fokus pada kemajuan, bukan kesempurnaan.", author: "Aistim" },
   { text: "Kerjakan yang penting dulu, sisanya menyusul.", author: "Aistim" },
   { text: "Konsistensi mengalahkan intensitas.", author: "Aistim" },
-  { text: "Sedikit demi sedikit, lama-lama menjadi bukit.", author: "Peribahasa" },
+  { text: "Sedikit demi sedikit, lama-lama menjadi bukit.", author: "Aistim" },
   { text: "Hari ini adalah kesempatan baru untuk memulai.", author: "Aistim" },
   { text: "Tenang, satu langkah saja dulu.", author: "Aistim" },
   { text: "Yang dirapikan hari ini memudahkan besok.", author: "Aistim" },
