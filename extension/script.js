@@ -731,9 +731,9 @@ function kGambarRiple(r, now) {
     const rad = 4 + e * lebar;
     const fade = (1 - v) * (1 - v);
     kCtx.save();
-    kCtx.shadowColor = "rgba(0,30,60," + (0.35 * fade).toFixed(3) + ")";
-    kCtx.shadowBlur = 8;
-    kCtx.shadowOffsetY = 2;
+    kCtx.shadowColor = "rgba(0,20,45," + (0.6 * fade).toFixed(3) + ")";
+    kCtx.shadowBlur = 14;
+    kCtx.shadowOffsetY = 4;
     kCtx.beginPath();
     kCtx.arc(r.x, r.y, rad, 0, Math.PI * 2);
     kCtx.lineWidth = 1.1 - k * 0.2;
