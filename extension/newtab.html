@@ -96,17 +96,6 @@
       </div>
       <p id="msg" class="msg" role="status"></p>
     </section>
-    <!-- Radio: pemutar RadioTune.fm, di bawah menu -->
-    <section id="radio" class="radio" aria-label="Radio">
-      <div class="radio-bar">
-        <span class="radio-judul">Radio</span>
-        <button id="radio-lihat" class="pins-btn" type="button" aria-expanded="false" aria-controls="radio-iframe">Lihat semua ⤓</button>
-      </div>
-      <div class="radio-kotak">
-        <iframe id="radio-iframe" src="https://www.radiotune.fm/id-id/" title="RadioTune.fm" allow="autoplay" loading="lazy" referrerpolicy="no-referrer"></iframe>
-      </div>
-    </section>
-
     <!-- Kalender libur Indonesia (publik): panel tertutup, dibuka lewat "Lihat semua" seperti Radio -->
     <section id="kalender" class="radio kalender" aria-label="Kalender libur">
       <div class="radio-bar">
@@ -119,6 +108,18 @@
         <a id="kalender-tambah" class="pins-btn pri kalender-plus" href="https://calendar.google.com/calendar/u/0/r/eventedit">+ Tambah acara</a>
       </div>
     </section>
+
+    <!-- Radio: pemutar RadioTune.fm, di bawah menu -->
+    <section id="radio" class="radio" aria-label="Radio">
+      <div class="radio-bar">
+        <span class="radio-judul">Radio</span>
+        <button id="radio-lihat" class="pins-btn" type="button" aria-expanded="false" aria-controls="radio-iframe">Lihat semua ⤓</button>
+      </div>
+      <div class="radio-kotak">
+        <iframe id="radio-iframe" src="https://www.radiotune.fm/id-id/" title="RadioTune.fm" allow="autoplay" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+    </section>
+
   </main>
 
   <dialog id="dlg-pin">
