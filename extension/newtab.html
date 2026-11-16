@@ -71,7 +71,7 @@
               <button id="btn-flip-balik" class="pins-btn pri" type="button">Selesai ⟲</button>
             </div>
             <section class="latar" aria-label="Latar halaman">
-              <div class="latar-head"><span>Latar</span><small id="latar-nama"></small></div>
+              <div class="latar-head"><span>Latar</span><small id="latar-nama"></small><button id="latar-hapus" class="pins-btn" type="button" hidden>Hapus latar ini</button></div>
               <div id="latar-pilih" class="latar-pilih" role="radiogroup" aria-label="Pilih latar"></div>
               <label class="latar-harian"><input id="latar-harian" type="checkbox"> Ganti otomatis tiap hari</label>
             </section>
@@ -161,6 +161,24 @@
         <button type="button" id="pin-del" class="danger" hidden>Hapus</button>
         <button type="button" id="pin-cancel">Batal</button>
         <button type="submit" id="pin-ok" class="pri">Simpan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-latar">
+    <form method="dialog" id="form-latar">
+      <h2>Latar dari link</h2>
+      <label>Link gambar (https)
+        <input id="latar-url" type="text" inputmode="url" maxlength="500" placeholder="https://contoh.com/foto.jpg" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      </label>
+      <label>Nama (opsional)
+        <input id="latar-judul-input" type="text" maxlength="24" placeholder="Kosong: nama situs" autocomplete="off">
+      </label>
+      <small>Gambar diambil dari situs tersebut setiap kali latar ini dipakai.</small>
+      <small id="latar-err" class="pin-err" role="alert"></small>
+      <menu>
+        <button type="button" id="latar-batal">Batal</button>
+        <button type="submit" id="latar-ok" class="pri">Simpan</button>
       </menu>
     </form>
   </dialog>

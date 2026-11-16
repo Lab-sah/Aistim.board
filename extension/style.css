@@ -254,6 +254,7 @@ a.pins-btn { display: inline-flex; align-items: center; text-decoration: none; w
 .latar-sw { width: 30px; height: 30px; padding: 0; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; cursor: pointer; }
 .latar-sw:hover { border-color: rgba(255, 255, 255, 0.8); }
 .latar-sw[aria-checked="true"] { box-shadow: 0 0 0 2px #1f2937, 0 0 0 4px #fff; }
+.latar-sw.latar-plus { display: grid; place-items: center; background: var(--kaca); color: #fff; font-size: 18px; line-height: 1; padding: 0; }
 .latar-sw:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .latar-harian { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; opacity: 0.85; }
 .latar-harian input { margin: 0; }

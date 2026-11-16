@@ -841,18 +841,30 @@ const LATAR = [
 ];
 const LATAR_DEFAULT = "akuarium";
 let latar = { id: LATAR_DEFAULT, harian: false };
+let latarSendiri = []; // latar dari link: [{ id, nama, foto }], disimpan di browser
+const LATAR_SENDIRI_MAKS = 12;
+function latarSemua() { return LATAR.concat(latarSendiri); }
 function normLatar(v) {
   const o = v && typeof v === "object" ? v : {};
-  return { id: LATAR.some((x) => x.id === o.id) ? o.id : LATAR_DEFAULT, harian: o.harian === true };
+  return { id: latarSemua().some((x) => x.id === o.id) ? o.id : LATAR_DEFAULT, harian: o.harian === true };
+}
+function bacaLatarSendiri(v) {
+  if (!Array.isArray(v)) return [];
+  return v.filter((x) => x && typeof x.id === "string" && typeof x.foto === "string" && typeof x.nama === "string" && /^f[a-z0-9]+$/.test(x.id) && fotoAman(x.foto)).slice(0, LATAR_SENDIRI_MAKS);
 }
 // Nilai CSS untuk latar: foto (dengan warna cadangan) atau gradien
 function latarCss(x) {
-  return x.foto ? 'url("' + x.foto + '") center / cover no-repeat' : x.css;
+  // latar dari link diberi warna cadangan, supaya tetap terlihat saat gambar gagal dimuat
+  return x.foto ? 'url("' + x.foto + '") center / cover no-repeat, #0a4a57' : x.css;
+}
+// Hanya https dengan karakter aman untuk dimasukkan ke CSS url("...")
+function fotoAman(v) {
+  return typeof v === "string" && /^https:\/\/[^\s"'()\\<>]+$/.test(v) && v.length <= 500;
 }
 // Mode harian: satu warna per hari (hari menurut jam lokal), berurutan mengikuti daftar
 function latarAktif() {
   if (latar.harian) return LATAR[Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % LATAR.length];
-  return LATAR.find((x) => x.id === latar.id) || LATAR[0];
+  return latarSemua().find((x) => x.id === latar.id) || LATAR[0];
 }
 // ---------- Latar gelombang: mesh yang bergerak, dan riak di setiap klik ----------
 const fx = $("fx");
@@ -1409,6 +1421,7 @@ function terapkanLatar() {
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
+  $("latar-hapus").hidden = !latarSendiri.some((x) => x.id === latar.id);
   document.querySelectorAll(".latar-sw").forEach((b) => {
     const on = b.dataset.id === a.id;
     b.setAttribute("aria-checked", String(on));
@@ -1418,7 +1431,7 @@ function terapkanLatar() {
 function bangunLatar() {
   const g = $("latar-pilih");
   g.textContent = "";
-  LATAR.forEach((x) => {
+  latarSemua().forEach((x) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "latar-sw";
@@ -1440,8 +1453,65 @@ function bangunLatar() {
     next.focus();
     next.click();
   });
+  const tambah = document.createElement("button");
+  tambah.type = "button";
+  tambah.className = "latar-sw latar-plus";
+  tambah.id = "latar-tambah";
+  tambah.title = "Tambah latar dari link";
+  tambah.setAttribute("aria-label", "Tambah latar dari link");
+  tambah.textContent = "+";
+  tambah.disabled = latarSendiri.length >= LATAR_SENDIRI_MAKS;
+  tambah.addEventListener("click", () => {
+    $("latar-url").value = "";
+    $("latar-judul-input").value = "";
+    $("latar-err").textContent = "";
+    dlgLatar.showModal();
+    $("latar-url").focus();
+  });
+  g.append(tambah);
   $("latar-harian").addEventListener("change", () => simpanLatar({ id: latar.id, harian: $("latar-harian").checked }));
 }
+// Latar dari link: dialog tambah, dan hapus untuk latar dari link yang sedang dipilih
+const dlgLatar = $("dlg-latar");
+$("latar-batal").addEventListener("click", () => dlgLatar.close());
+$("form-latar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const url = normUrlFoto($("latar-url").value);
+  if (!url) return ($("latar-err").textContent = "Link harus https:// dan berupa gambar yang bisa diakses.");
+  const id = "f" + idLink(url).slice(1);
+  if (latarSemua().some((x) => x.id === id)) return ($("latar-err").textContent = "Latar dari link ini sudah ada.");
+  if (latarSendiri.length >= LATAR_SENDIRI_MAKS) return ($("latar-err").textContent = "Maksimal " + LATAR_SENDIRI_MAKS + " latar dari link.");
+  const nama = $("latar-judul-input").value.trim().slice(0, 24) || hostOf(url) || "Latar saya";
+  const baru = [...latarSendiri, { id, nama, foto: url }];
+  try {
+    await store.set("latarSendiri", baru);
+  } catch (err) {
+    return ($("latar-err").textContent = "Gagal menyimpan: " + (err && err.message ? err.message : err));
+  }
+  latarSendiri = baru;
+  dlgLatar.close();
+  simpanLatar({ id, harian: false });
+  bangunLatar();
+});
+function normUrlFoto(v) {
+  const href = normalUrl(v);
+  return href && fotoAman(href) ? href : null;
+}
+$("latar-hapus").addEventListener("click", async () => {
+  const sekarang = latarSendiri.find((x) => x.id === latar.id);
+  if (!sekarang) return;
+  if (!(await konfirmasi('Hapus latar "' + sekarang.nama + '"?'))) return;
+  const baru = latarSendiri.filter((x) => x.id !== sekarang.id);
+  try {
+    await store.set("latarSendiri", baru);
+  } catch (err) {
+    return msg("Gagal menghapus latar.");
+  }
+  latarSendiri = baru;
+  simpanLatar({ id: LATAR_DEFAULT, harian: false });
+  bangunLatar();
+});
+
 async function simpanLatar(next) {
   latar = next;
   terapkanLatar();
@@ -1764,6 +1834,7 @@ async function mulai() {
   if (JSON.stringify(pins) !== JSON.stringify(tersimpan)) {
     try { await store.set("pins", pins); } catch (e) {}
   }
+  try { latarSendiri = bacaLatarSendiri(await store.get("latarSendiri", [])); } catch (e) {}
   try { latar = normLatar(await store.get("latar", null)); } catch (e) {}
   bangunLatar();
   terapkanLatar();
