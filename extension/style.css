@@ -140,7 +140,7 @@ a.pins-btn { display: inline-flex; align-items: center; text-decoration: none; w
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
    mengikuti sisi yang sedang tampil, jadi sisi depan tidak ikut setinggi sisi belakang yang lebih panjang. */
 .flip { perspective: 1400px; }
-.flip-in { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; height: var(--h, auto); transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.3, 0.7, 0.2, 1), height 0.55s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.flip-in { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; height: var(--h, auto); transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.45, 0, 0.2, 1), height 0.8s cubic-bezier(0.45, 0, 0.2, 1); will-change: transform; }
 .flip.balik .flip-in { transform: rotateY(180deg); }
 .face {
   grid-area: 1 / 1;
