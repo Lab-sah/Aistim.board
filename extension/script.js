@@ -650,6 +650,18 @@ if (kartuGerak) {
   }, { passive: true });
 }
 
+// Latar animasi dari bg/efek/: iframe dimuat sekali per latar, dikosongkan saat latar lain dipilih (animasinya berhenti)
+function efekNyala(path) {
+  const el = $("efek-iframe");
+  if (!path) {
+    el.hidden = true;
+    if (el.getAttribute("src") !== "about:blank") el.src = "about:blank";
+    return;
+  }
+  if (el.getAttribute("src") !== path) el.src = path;
+  el.hidden = false;
+}
+
 // ---------- Gelombang kursor: cincin bergelombang yang mengikuti kursor atau sentuhan ----------
 const kursorFx = $("kursor-gelombang");
 const kCtx = kursorFx.getContext("2d");
@@ -859,6 +871,11 @@ const LATAR = [
   { id: "bintang", nama: "Bintang jatuh", css: "linear-gradient(160deg, #03060f 0%, #0c1a38 60%, #1d2f5c 100%)", adegan: "bintang" },
   { id: "ombak", nama: "Ombak senja", css: "linear-gradient(160deg, #2b5876 0%, #e8805e 55%, #0d3d57 100%)", adegan: "ombak" },
   // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
+  // Demo animasi CodePen (MIT), dimuat sebagai latar lokal (bg/efek/)
+  { id: "efek-laba", nama: "Laba-laba pelangi", css: "linear-gradient(160deg, #1a0b2e 0%, #6d28d9 50%, #0ea5e9 100%)", efek: "bg/efek/laba-laba-pelangi/index.html" },
+  { id: "efek-burung", nama: "Burung berkelompok", css: "linear-gradient(160deg, #1e3a5f 0%, #7dd3fc 60%, #e0f2fe 100%)", efek: "bg/efek/burung/index.html" },
+  { id: "efek-gravitasi", nama: "Gravitasi", css: "linear-gradient(160deg, #000 0%, #1e293b 60%, #334155 100%)", efek: "bg/efek/gravitasi/index.html" },
+  { id: "efek-sakura", nama: "Sakura", css: "linear-gradient(160deg, #3b0764 0%, #f9a8d4 60%, #fce7f3 100%)", efek: "bg/efek/sakura/index.html" },
   { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
   { id: "biru", nama: "Biru malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
@@ -1444,6 +1461,7 @@ function terapkanLatar() {
   ikanOn = a.ikan === true;
   if (ikanOn && !ikan.length) ikanBuat();
   gelNyala(a.id === "akuarium"); // gelembung hanya untuk latar Akuarium
+  efekNyala(a.efek || null);
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;

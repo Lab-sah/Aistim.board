@@ -43,6 +43,8 @@ body {
   .jam, .sholat, .flip, .radio { translate: none; }
   .kartu-ombak { animation: none; }
 }
+.efek-iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 0; background: #000; }
+.efek-iframe[hidden] { display: none; }
 .kursor-gelombang { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
 .halaman {
