@@ -577,9 +577,11 @@ function draw() {
     b.forEach(function(e, i, a) {
       var _b = b[i];
       if (_b.orbit) {
-        var a = _b.ang + Date.now() * 0.0004;
-        var dx = Math.cos(a) * 420 - _b.pos.x, dz = Math.sin(a) * 420 - _b.pos.z;
-        _b.accel.add(new Bird.Vtr(dx * 0.004, 0, dz * 0.004));
+        // elips di layar yang melingkari area kartu (lebar ~260, tinggi ~430 px)
+        var a = _b.ang + Date.now() * 0.0005;
+        var dx = Math.cos(a) * 260 - _b.pos.x, dy = Math.sin(a) * 430 - _b.pos.y;
+        var dz = -_b.pos.z;
+        _b.accel.add(new Bird.Vtr(dx * 0.004, dy * 0.004, dz * 0.002));
       }
       _b.run(b);
       var bird = birds[i];

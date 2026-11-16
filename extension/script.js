@@ -651,12 +651,12 @@ if (kartuGerak) {
 }
 
 // Latar animasi dari bg/efek/: iframe dimuat sekali per latar, dikosongkan saat latar lain dipilih (animasinya berhenti)
-function efekNyala(path, diatas) {
-  const el = $("efek-iframe");
-  // "pojok": jendela kecil di pojok kiri atas (laba-laba); "penuh": seluruh layar di atas kartu (burung). Klik tetap tembus.
-  el.classList.toggle("diatas", !!path && diatas === "pojok");
-  el.classList.toggle("diatas-penuh", !!path && (diatas === "penuh" || diatas === "penuh-gabung"));
-  el.classList.toggle("gabung", !!path && diatas === "penuh-gabung"); // latar gelap dari demo tidak menutupi kartu
+// Lapisan latar animasi: "pojok" (jendela kecil di kiri atas), "penuh" dan "penuh-gabung" (seluruh layar di atas kartu).
+// Tanpa mode, lapisan berada di belakang kartu. Klik tetap tembus di mode atas.
+function efekAtur(el, path, mode) {
+  el.classList.toggle("diatas", !!path && mode === "pojok");
+  el.classList.toggle("diatas-penuh", !!path && (mode === "penuh" || mode === "penuh-gabung"));
+  el.classList.toggle("gabung", !!path && mode === "penuh-gabung"); // latar gelap dari demo tidak menutupi kartu
   if (!path) {
     el.hidden = true;
     if (el.getAttribute("src") !== "about:blank") el.src = "about:blank";
@@ -665,6 +665,8 @@ function efekNyala(path, diatas) {
   if (el.getAttribute("src") !== path) el.src = path;
   el.hidden = false;
 }
+function efekNyala(path, mode) { efekAtur($("efek-iframe"), path, mode); }
+function efekNyala2(path, mode) { efekAtur($("efek-iframe-2"), path, mode); }
 
 // ---------- Gelombang kursor: cincin bergelombang yang mengikuti kursor atau sentuhan ----------
 const kursorFx = $("kursor-gelombang");
@@ -875,6 +877,8 @@ const LATAR = [
   { id: "bintang", nama: "Bintang jatuh", css: "linear-gradient(160deg, #03060f 0%, #0c1a38 60%, #1d2f5c 100%)", adegan: "bintang" },
   { id: "ombak", nama: "Ombak senja", css: "linear-gradient(160deg, #2b5876 0%, #e8805e 55%, #0d3d57 100%)", adegan: "ombak" },
   // Animasi: mesh warna yang bergerak pelan, dan riak gelombang dari setiap titik yang diklik
+  // Dua efek sekaligus: gravitasi di belakang kartu, sakura di atas kartu
+  { id: "efek-dua", nama: "Gravitasi + Sakura", css: "linear-gradient(160deg, #000 0%, #1e293b 60%, #3b0764 100%)", efek: "bg/efek/gravitasi/index.html", efek2: "bg/efek/sakura/index.html", efek2Atas: "penuh-gabung" },
   // Demo animasi CodePen (MIT), dimuat sebagai latar lokal (bg/efek/)
   { id: "efek-laba", nama: "Laba-laba pelangi", css: "linear-gradient(160deg, #1a0b2e 0%, #6d28d9 50%, #0ea5e9 100%)", efek: "bg/efek/laba-laba-pelangi/index.html", efekAtas: "pojok" },
   { id: "efek-burung", nama: "Burung berkelompok", css: "linear-gradient(160deg, #1e3a5f 0%, #7dd3fc 60%, #e0f2fe 100%)", efek: "bg/efek/burung/index.html", efekAtas: "penuh" },
@@ -1466,6 +1470,7 @@ function terapkanLatar() {
   if (ikanOn && !ikan.length) ikanBuat();
   gelNyala(a.id === "akuarium"); // gelembung hanya untuk latar Akuarium
   efekNyala(a.efek || null, a.efekAtas || null);
+  efekNyala2(a.efek2 || null, a.efek2Atas || null);
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
