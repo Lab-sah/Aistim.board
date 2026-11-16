@@ -624,6 +624,32 @@ function tick() {
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+// ---------- Kartu ikut bergerak: paralaks mengikuti kursor, dan bergoyang saat diklik ----------
+const kartuGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let kPx = 0, kPy = 0, kTargetX = 0, kTargetY = 0, kParalaksRaf = 0;
+function kartuLangkah() {
+  kParalaksRaf = 0;
+  kPx += (kTargetX - kPx) * 0.12;
+  kPy += (kTargetY - kPy) * 0.12;
+  document.documentElement.style.setProperty("--px", kPx.toFixed(2) + "px");
+  document.documentElement.style.setProperty("--py", kPy.toFixed(2) + "px");
+  if (Math.abs(kTargetX - kPx) > 0.05 || Math.abs(kTargetY - kPy) > 0.05) kParalaksRaf = requestAnimationFrame(kartuLangkah);
+}
+if (kartuGerak) {
+  window.addEventListener("pointermove", (e) => {
+    kTargetX = ((e.clientX / innerWidth) - 0.5) * 14; // paling jauh sekitar 7 px
+    kTargetY = ((e.clientY / innerHeight) - 0.5) * 14;
+    if (!kParalaksRaf) kParalaksRaf = requestAnimationFrame(kartuLangkah);
+  }, { passive: true });
+  window.addEventListener("pointerdown", () => {
+    document.querySelectorAll(".jam, .sholat, .flip, .radio").forEach((el) => {
+      el.classList.remove("kartu-ombak");
+      void el.offsetWidth; // mulai ulang animasi
+      el.classList.add("kartu-ombak");
+    });
+  }, { passive: true });
+}
+
 // ---------- Gelombang kursor: cincin bergelombang yang mengikuti kursor atau sentuhan ----------
 const kursorFx = $("kursor-gelombang");
 const kCtx = kursorFx.getContext("2d");

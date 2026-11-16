@@ -23,6 +23,26 @@ body {
 /* Latar gelombang: kanvas di belakang seluruh halaman, tidak menangkap klik (klik tetap sampai ke kartu) */
 .fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
 .fx[hidden] { display: none; }
+/* Kartu ikut bergerak mengikuti kursor (paralaks) dan bergoyang saat diklik. Memakai translate/scale, jadi tidak bentrok dengan transform kartu Atur. */
+.jam, .sholat, .flip, .radio {
+  translate: calc(var(--px, 0px) * var(--d, 1)) calc(var(--py, 0px) * var(--d, 1));
+  transition: scale 0.6s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.jam { --d: 0.6; }
+.sholat { --d: 0.9; }
+.flip { --d: 1.3; }
+.radio { --d: 0.8; }
+.kartu-ombak { animation: kartu-ombak 0.9s ease-out; }
+@keyframes kartu-ombak {
+  0% { scale: 1; }
+  30% { scale: 1.012; }
+  60% { scale: 0.996; }
+  100% { scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jam, .sholat, .flip, .radio { translate: none; }
+  .kartu-ombak { animation: none; }
+}
 .kursor-gelombang { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
 .halaman {
