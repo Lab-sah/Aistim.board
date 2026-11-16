@@ -1443,7 +1443,7 @@ function terapkanLatar() {
   fxNyala(!!a.animasi);
   ikanOn = a.ikan === true;
   if (ikanOn && !ikan.length) ikanBuat();
-  gelNyala(true); // gelembung untuk semua latar
+  gelNyala(a.id === "akuarium"); // gelembung hanya untuk latar Akuarium
   adeganNyala(a.adegan || null);
   $("latar-nama").textContent = latar.harian ? "Hari ini: " + a.nama : a.nama;
   $("latar-harian").checked = latar.harian;
