@@ -68,6 +68,8 @@ body {
 .radio-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
 .radio-bar .pins-btn { white-space: nowrap; }
 .radio-judul { font-size: 13px; letter-spacing: 0.04em; opacity: 0.85; }
+.radio-aksi { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+a.pins-btn { display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
 /* Kartu jadwal sholat: di kanan jam di desktop, di bawah jam di layar sempit */
 .sholat { width: 100%; max-width: 460px; min-width: 0; box-sizing: border-box; padding: 16px 18px; border-radius: var(--kaca-radius); color: #fff; }
 .sholat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }

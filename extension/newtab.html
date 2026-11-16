@@ -111,7 +111,10 @@
     <section id="kalender" class="radio kalender" aria-label="Kalender libur">
       <div class="radio-bar">
         <span class="radio-judul">Kalender libur Indonesia</span>
-        <button id="kalender-lihat" class="pins-btn" type="button" aria-expanded="false" aria-controls="kalender-iframe">Lihat semua ⤓</button>
+        <span class="radio-aksi">
+          <a id="kalender-tambah" class="pins-btn" href="https://calendar.google.com/calendar/u/0/r/eventedit">+ Tambah acara</a>
+          <button id="kalender-lihat" class="pins-btn" type="button" aria-expanded="false" aria-controls="kalender-iframe">Lihat semua ⤓</button>
+        </span>
       </div>
       <div class="radio-kotak">
         <iframe id="kalender-iframe" src="https://calendar.google.com/calendar/embed?src=id.indonesian%23holiday%40group.v.calendar.google.com&amp;ctz=Asia%2FJakarta&amp;mode=AGENDA&amp;showTitle=0&amp;showPrint=0&amp;showCalendars=0&amp;showTz=0" title="Kalender libur Indonesia (Google Calendar)" loading="lazy" referrerpolicy="no-referrer"></iframe>
