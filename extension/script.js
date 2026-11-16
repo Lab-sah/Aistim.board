@@ -624,6 +624,58 @@ function tick() {
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+// ---------- Gelombang kursor: cincin bergelombang yang mengikuti kursor atau sentuhan ----------
+const kursorFx = $("kursor-gelombang");
+const kCtx = kursorFx.getContext("2d");
+const kursorGerak = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let kRiak = [], kRaf = 0, kW = 0, kH = 0, kDpr = 1, kTerakhir = 0, kGambarTerakhir = 0;
+function kUkur() {
+  kDpr = Math.min(window.devicePixelRatio || 1, 2);
+  kW = innerWidth;
+  kH = innerHeight;
+  kursorFx.width = Math.round(kW * kDpr);
+  kursorFx.height = Math.round(kH * kDpr);
+}
+kUkur();
+window.addEventListener("resize", kUkur);
+function kTambah(x, y) {
+  if (!kursorGerak) return;
+  const now = performance.now();
+  if (now - kTerakhir < 80) return; // satu cincin tiap 80 ms saat kursor bergerak
+  kTerakhir = now;
+  kRiak.push({ x, y, t: now });
+  if (kRiak.length > 20) kRiak.shift();
+  if (!kRaf) kRaf = requestAnimationFrame(kFrame);
+}
+function kFrame(now) {
+  kRaf = 0;
+  if (now - kGambarTerakhir < 1000 / 30) { // dibatasi 30 fps
+    if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
+    return;
+  }
+  kGambarTerakhir = now;
+  kCtx.setTransform(kDpr, 0, 0, kDpr, 0, 0);
+  kCtx.clearRect(0, 0, kW, kH);
+  for (let i = kRiak.length - 1; i >= 0; i--) {
+    const r = kRiak[i], u = (now - r.t) / 900;
+    if (u >= 1) { kRiak.splice(i, 1); continue; }
+    const rad = 8 + u * 44, amp = 2.5 * (1 - u), fase = now * 0.012 + r.t;
+    kCtx.beginPath();
+    for (let k = 0; k <= 48; k++) { // lingkaran yang bergelombang
+      const a = (k / 48) * Math.PI * 2;
+      const rr = rad + Math.sin(a * 4 + fase) * amp;
+      const px = r.x + Math.cos(a) * rr, py = r.y + Math.sin(a) * rr;
+      if (k === 0) kCtx.moveTo(px, py); else kCtx.lineTo(px, py);
+    }
+    kCtx.closePath();
+    kCtx.lineWidth = 1 + (1 - u) * 1.2;
+    kCtx.strokeStyle = "rgba(255,255,255," + ((1 - u) * 0.55).toFixed(3) + ")";
+    kCtx.stroke();
+  }
+  if (kRiak.length) kRaf = requestAnimationFrame(kFrame);
+}
+["pointermove", "pointerdown"].forEach((ev) => window.addEventListener(ev, (e) => kTambah(e.clientX, e.clientY), { passive: true }));
+
 // ---------- Jam analog: digambar di canvas, diperbarui tiap detik ----------
 const jamCanvas = $("jam-canvas");
 const jamCtx = jamCanvas.getContext("2d");

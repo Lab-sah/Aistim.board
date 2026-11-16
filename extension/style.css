@@ -23,6 +23,7 @@ body {
 /* Latar gelombang: kanvas di belakang seluruh halaman, tidak menangkap klik (klik tetap sampai ke kartu) */
 .fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
 .fx[hidden] { display: none; }
+.kursor-gelombang { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
 .halaman {
   position: relative;
