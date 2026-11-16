@@ -655,7 +655,8 @@ function efekNyala(path, diatas) {
   const el = $("efek-iframe");
   // "pojok": jendela kecil di pojok kiri atas (laba-laba); "penuh": seluruh layar di atas kartu (burung). Klik tetap tembus.
   el.classList.toggle("diatas", !!path && diatas === "pojok");
-  el.classList.toggle("diatas-penuh", !!path && diatas === "penuh");
+  el.classList.toggle("diatas-penuh", !!path && (diatas === "penuh" || diatas === "penuh-gabung"));
+  el.classList.toggle("gabung", !!path && diatas === "penuh-gabung"); // latar gelap dari demo tidak menutupi kartu
   if (!path) {
     el.hidden = true;
     if (el.getAttribute("src") !== "about:blank") el.src = "about:blank";
@@ -877,8 +878,8 @@ const LATAR = [
   // Demo animasi CodePen (MIT), dimuat sebagai latar lokal (bg/efek/)
   { id: "efek-laba", nama: "Laba-laba pelangi", css: "linear-gradient(160deg, #1a0b2e 0%, #6d28d9 50%, #0ea5e9 100%)", efek: "bg/efek/laba-laba-pelangi/index.html", efekAtas: "pojok" },
   { id: "efek-burung", nama: "Burung berkelompok", css: "linear-gradient(160deg, #1e3a5f 0%, #7dd3fc 60%, #e0f2fe 100%)", efek: "bg/efek/burung/index.html", efekAtas: "penuh" },
-  { id: "efek-gravitasi", nama: "Gravitasi", css: "linear-gradient(160deg, #000 0%, #1e293b 60%, #334155 100%)", efek: "bg/efek/gravitasi/index.html" },
-  { id: "efek-sakura", nama: "Sakura", css: "linear-gradient(160deg, #3b0764 0%, #f9a8d4 60%, #fce7f3 100%)", efek: "bg/efek/sakura/index.html" },
+  { id: "efek-gravitasi", nama: "Gravitasi", css: "linear-gradient(160deg, #000 0%, #1e293b 60%, #334155 100%)", efek: "bg/efek/gravitasi/index.html", efekAtas: "penuh-gabung" },
+  { id: "efek-sakura", nama: "Sakura", css: "linear-gradient(160deg, #3b0764 0%, #f9a8d4 60%, #fce7f3 100%)", efek: "bg/efek/sakura/index.html", efekAtas: "penuh-gabung" },
   { id: "gelombang", nama: "Gelombang", css: "linear-gradient(160deg, #0a4a57 0%, #2dd4bf 50%, #7c3aed 100%)", animasi: true },
   { id: "teal", nama: "Teal", css: "linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%)" },
   { id: "biru", nama: "Biru malam", css: "linear-gradient(160deg, #0f172a 0%, #1e3a5f 52%, #0f172a 100%)" },
