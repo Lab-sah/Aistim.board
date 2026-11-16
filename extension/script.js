@@ -337,6 +337,12 @@ $("radio-lihat").addEventListener("click", () => {
   $("radio-lihat").setAttribute("aria-expanded", String(terbuka));
   $("radio-lihat").textContent = terbuka ? "Tutup ⤒" : "Lihat semua ⤓";
 });
+// Jadwal sholat di layar sempit: tertutup dulu, tombol untuk membuka (tidak berpengaruh di desktop)
+$("sholat-lihat").addEventListener("click", () => {
+  const terbuka = $("sholat").classList.toggle("terbuka");
+  $("sholat-lihat").setAttribute("aria-expanded", String(terbuka));
+  $("sholat-lihat").textContent = terbuka ? "Tutup ⤒" : "Jadwal sholat ⤓";
+});
 // Kalender libur Indonesia: sama seperti Radio (tertutup dulu, "Lihat semua" untuk membuka)
 $("kalender-lihat").addEventListener("click", () => {
   const terbuka = $("kalender").classList.toggle("terbuka");

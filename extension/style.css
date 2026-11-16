@@ -93,6 +93,15 @@ a.pins-btn { display: inline-flex; align-items: center; text-decoration: none; w
 .sholat-daftar li.next { background: rgba(255, 255, 255, 0.16); font-weight: 600; }
 .sholat-info { margin: 8px 0 0; font-size: 13px; opacity: 0.85; }
 .sholat-info:empty { display: none; }
+/* Layar sempit: jadwal sholat tertutup, dibuka lewat tombol (seperti Radio). Di desktop selalu tampil. */
+.sholat-lihat { display: none; }
+@media (max-width: 767px) {
+  .sholat { padding: 10px 14px; }
+  .sholat-lihat { display: inline-flex; align-items: center; }
+  .sholat-isi { display: none; }
+  .sholat.terbuka .sholat-isi { display: block; margin-top: 10px; }
+  .sholat.terbuka .sholat-lihat { margin-bottom: 0; }
+}
 /* Tinggi ringkas: hanya baris kotak cari RadioTune yang tampil. Banner "Dapatkan di Google Play" di bawahnya terpotong. Atur bila perlu. */
 /* Transparan seperti kartu jam: isi iframe dibuat setengah tembus pandang, latar kartu terlihat di baliknya. */
 /* Iframe dibuat lebih lebar dari kartu: kartu memotong sisi kanan, jadi ikon di kanan kotak cari tidak terlihat. */

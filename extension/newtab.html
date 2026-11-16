@@ -32,7 +32,9 @@
         </figure>
       </section>
       <!-- Kartu jadwal sholat: di kanan jam (di bawah jam pada layar sempit). Data dari api.aladhan.com, per kota -->
-      <section class="sholat" aria-label="Jadwal sholat">
+      <section id="sholat" class="sholat" aria-label="Jadwal sholat">
+        <button id="sholat-lihat" class="pins-btn sholat-lihat" type="button" aria-expanded="false" aria-controls="sholat-isi">Jadwal sholat ⤓</button>
+        <div id="sholat-isi" class="sholat-isi">
         <div class="sholat-head">
           <div>
             <h2 class="sholat-judul">Jadwal Sholat</h2>
@@ -46,6 +48,7 @@
         </div>
         <ul id="sholat-daftar" class="sholat-daftar"></ul>
         <p id="sholat-info" class="sholat-info" role="status"></p>
+        </div>
       </section>
     </div>
 
