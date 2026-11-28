@@ -21,8 +21,10 @@
   <!-- Gelombang yang mengikuti kursor/sentuhan: lapisan di atas semua, tidak menangkap klik -->
   <canvas id="kursor-gelombang" class="kursor-gelombang" aria-hidden="true"></canvas>
   <main class="halaman">
+    <!-- @GITHUB-ONLY-BEGIN -->
     <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
     <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
+    <!-- @GITHUB-ONLY-END -->
 
     <div class="atas">
       <!-- Kartu atas: jam dan kata-kata -->
@@ -89,6 +91,7 @@
               <small id="sumber-info" role="status"></small>
               <button id="sumber-segar" class="pins-btn" type="button">Segarkan</button>
             </div>
+            <!-- @GITHUB-ONLY-BEGIN -->
             <div class="upd">
               <div class="upd-baris">
                 <button id="upd-cek" class="pins-btn" type="button">Periksa pembaruan</button>
@@ -98,6 +101,7 @@
               <small id="upd-cara" hidden>Ekstrak zip ke folder yang sama, lalu tekan ⟳ pada kartu extension di halaman Ekstensi. Menu tidak hilang.</small>
               <label class="upd-auto"><input id="upd-auto" type="checkbox" checked> Periksa otomatis saat tab dibuka</label>
             </div>
+            <!-- @GITHUB-ONLY-END -->
             <small id="ver" class="ver"></small>
           </div>
         </div>

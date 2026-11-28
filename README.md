@@ -66,3 +66,7 @@ Menu pribadi tersimpan di browser (`chrome.storage.local`, kunci `pins`: `id`, `
 - `main.json`: daftar menu bersama (diedit lewat GitHub; perubahannya tidak memicu rilis baru)
 - `tools/id-extension.py`: pemeriksa ID tetap
 - `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Aistim-board-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)
+
+## Build untuk Chrome Web Store
+
+`python3 tools/build-webstore.py` membuat `Aistim-board-webstore.zip`: field `key` dibuang (toko menetapkan ID sendiri) dan pemeriksa pembaruan GitHub serta tombol Unduh dihapus (toko memperbarui sendiri). Kode yang dibuang ditandai `@GITHUB-ONLY` di `extension/script.js` dan `extension/newtab.html`. Workflow Release melampirkan zip ini di tiap rilis. Zip GitHub biasa tidak berubah.

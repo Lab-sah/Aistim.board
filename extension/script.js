@@ -1631,6 +1631,7 @@ async function simpanLatar(next) {
   try { await store.set("latar", latar); } catch (e) { msg("Gagal menyimpan latar."); }
 }
 
+// @GITHUB-ONLY-BEGIN (pemeriksa pembaruan GitHub; dibuang dari build Web Store oleh tools/build-webstore.py)
 // ---------- Pembaruan ----------
 // Memeriksa rilis terbaru di GitHub (tanpa token, tanpa data pribadi) dan menautkan unduhan zip-nya. Tidak memasang apa pun
 // sendiri. Tautan unduhan dibangun dari nomor versi yang sudah divalidasi, bukan diambil dari isi balasan GitHub.
@@ -1713,6 +1714,7 @@ $("upd-cek").addEventListener("click", async () => {
 $("upd-auto").addEventListener("change", async () => {
   try { await store.set("updAuto", $("upd-auto").checked); } catch (e) { msg("Gagal menyimpan pilihan."); }
 });
+// @GITHUB-ONLY-END
 
 // ---------- Mulai ----------
 // Perubahan dari tab lain (tab baru kedua yang terbuka) ikut tampil, supaya simpan dari tab lama tidak menimpa data baru.
@@ -1957,7 +1959,7 @@ async function mulai() {
   labelVersi();
   pantau();
   muatMenuBersama(false); // tidak ditunggu: halaman sudah tampil dengan salinan tersimpan
-  muatPembaruan();
+  muatPembaruan(); // @GITHUB-ONLY
   muatKutipan(); // tidak ditunggu: kutipan default sudah tampil
 }
 mulai().catch((e) => msg("Gagal memuat menu: " + (e && e.message ? e.message : e)));
