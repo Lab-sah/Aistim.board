@@ -70,3 +70,8 @@ Menu pribadi tersimpan di browser (`chrome.storage.local`, kunci `pins`: `id`, `
 ## Build untuk Chrome Web Store
 
 `python3 tools/build-webstore.py` membuat `Aistim-board-webstore.zip`: field `key` dibuang (toko menetapkan ID sendiri) dan pemeriksa pembaruan GitHub serta tombol Unduh dihapus (toko memperbarui sendiri). Kode yang dibuang ditandai `@GITHUB-ONLY` di `extension/script.js` dan `extension/newtab.html`. Workflow Release melampirkan zip ini di tiap rilis. Zip GitHub biasa tidak berubah.
+
+### Unggah ke Web Store: otomatis atau manual
+
+- **Manual (tanpa pengaturan apa pun):** naikkan `version` di `extension/manifest.json`, jalankan `python3 tools/build-webstore.py` (atau ambil zip dari rilis GitHub), lalu unggah di Developer Dashboard: item, **Package**, **Upload new package**, kirim untuk ditinjau.
+- **Otomatis lewat API:** workflow [Web Store](.github/workflows/webstore.yml) dijalankan manual dari tab Actions (opsi **terbitkan** untuk langsung dikirim ke tinjauan). Butuh empat secret repo: `CWS_EXTENSION_ID` (ID item di dashboard, ada setelah unggahan manual pertama), `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN` (OAuth Google Cloud dengan Chrome Web Store API aktif; panduan: developer.chrome.com/docs/webstore/using-api). Bila secret belum ada, workflow hanya membuat zip sebagai artifact dan melewati unggah, jadi aman dibiarkan.

@@ -1,0 +1,60 @@
+name: Web Store
+
+# Mengunggah (dan bila dipilih, menerbitkan) zip Web Store ke Chrome Web Store lewat API.
+# Dijalankan manual: tab Actions > Web Store > Run workflow. Tidak jalan otomatis di tiap push,
+# karena toko menolak versi yang sama atau lebih rendah; naikkan "version" di extension/manifest.json dulu.
+# Bila secret di bawah belum diatur, job hanya membuat zip dan menyuruh unggah manual (lihat README).
+#
+# Secret repo yang dibutuhkan: CWS_EXTENSION_ID, CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN
+
+on:
+  workflow_dispatch:
+    inputs:
+      terbitkan:
+        description: "Terbitkan setelah unggah (false = hanya unggah, terbitkan manual di dashboard)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  toko:
+    runs-on: ubuntu-latest
+    env:
+      EXT_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Tes
+        run: node tools/test.js
+      - name: Build ZIP Web Store
+        run: |
+          VERSION=$(python3 -c "import json;print(json.load(open('extension/manifest.json'))['version'])")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          python3 tools/build-webstore.py Aistim-board-webstore.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Aistim-board-webstore-${{ env.VERSION }}
+          path: Aistim-board-webstore.zip
+      - name: Unggah ke Web Store
+        run: |
+          if [ -z "$EXT_ID" ] || [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ] || [ -z "$REFRESH_TOKEN" ]; then
+            echo "::notice::Secret Web Store belum lengkap, unggah otomatis dilewati. Unduh artifact zip lalu unggah manual di Developer Dashboard."
+            exit 0
+          fi
+          TOKEN=$(curl -fsS https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+          echo "::add-mask::$TOKEN"
+          HASIL=$(curl -sS -X PUT -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" \
+            -T Aistim-board-webstore.zip "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXT_ID")
+          echo "$HASIL"
+          echo "$HASIL" | python3 -c "import sys,json;sys.exit(0 if json.load(sys.stdin).get('uploadState')=='SUCCESS' else 1)" \
+            || { echo "::error::Unggah gagal (cek versi harus lebih tinggi dari yang ada di toko)."; exit 1; }
+          if [ "${{ inputs.terbitkan }}" = "true" ]; then
+            curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" -H "Content-Length: 0" \
+              "https://www.googleapis.com/chromewebstore/v1.1/items/$EXT_ID/publish"
+          fi
