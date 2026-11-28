@@ -1,6 +1,6 @@
-"""Membuat kutipan harian baru lewat API Anthropic dan menulisnya ke quotes.json.
+"""Membuat kutipan harian baru lewat Gemini API dan menulisnya ke quotes.json.
 
-Dijalankan oleh workflow .github/workflows/kutipan.yml. Memakai Gemini API. Kunci dibaca
+Dijalankan oleh workflow .github/workflows/kutipan.yml. Kunci dibaca
 dari GEMINI_API_KEY (secret di repo), tidak pernah disimpan di kode.
 """
 import json
