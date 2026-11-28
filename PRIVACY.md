@@ -8,7 +8,7 @@ Hanya di browser ini (`chrome.storage.local`): pilihan latar halaman (kunci `lat
 
 ## Koneksi jaringan
 
-Ada tujuh jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari layanan favicon Google (`https://www.google.com/s2/favicons`) untuk menu yang tidak punya ikon sendiri. Yang dikirim hanya **nama domain induk** menu (mis. `trial.erzap.com` menjadi `erzap.com`), tanpa subdomain, path, query, atau data lain, dan tanpa header Referer. Nama domain pribadi (tanpa titik, alamat IP, `localhost`, `.local`, `.lan`, dan sejenisnya) tidak pernah dikirim. Saat mengisi form, permintaan baru dikirim setelah kolom link selesai diisi, bukan tiap ketikan. Bila ikon sendiri diisi, favicon tidak diminta. Seperti permintaan web biasa, Google dapat mencatat alamat IP dan informasi browser sesuai kebijakan mereka. Saat offline atau gagal, ikon berupa huruf pertama nama.
+Ada delapan jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari layanan favicon Google (`https://www.google.com/s2/favicons`) untuk menu yang tidak punya ikon sendiri. Yang dikirim hanya **nama domain induk** menu (mis. `trial.erzap.com` menjadi `erzap.com`), tanpa subdomain, path, query, atau data lain, dan tanpa header Referer. Nama domain pribadi (tanpa titik, alamat IP, `localhost`, `.local`, `.lan`, dan sejenisnya) tidak pernah dikirim. Saat mengisi form, permintaan baru dikirim setelah kolom link selesai diisi, bukan tiap ketikan. Bila ikon sendiri diisi, favicon tidak diminta. Seperti permintaan web biasa, Google dapat mencatat alamat IP dan informasi browser sesuai kebijakan mereka. Saat offline atau gagal, ikon berupa huruf pertama nama.
 
 **2. Menu bersama**: saat tab dibuka (paling sering sekali tiap 5 menit, dan saat kamu menekan **Segarkan**), extension membaca satu berkas publik `https://raw.githubusercontent.com/Lab-sah/Aistim.board/main/main.json` berisi daftar menu bersama. Permintaan ini hanya membaca: tanpa token, tanpa cookie, dan tanpa data pribadimu. Isinya divalidasi (hanya link `http`/`https`) dan hanya ditampilkan; tidak pernah dijalankan sebagai kode. Salinan terakhir disimpan di browser agar bisa dipakai offline. Seperti permintaan web biasa, GitHub dapat mencatat alamat IP dan informasi browser sesuai kebijakan GitHub.
 
@@ -21,6 +21,8 @@ Ada tujuh jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari 
 **6. Kalender libur**: panel kalender memuat tampilan kalender libur Indonesia yang publik dari `calendar.google.com` (Google Calendar). Permintaan ini tanpa token, tanpa cookie, dan tanpa data pribadimu. Tidak ada kalender pribadimu yang ditampilkan.
 
 **7. Latar dari link**: bila kamu menambahkan latar dari link, extension mengambil gambar itu dari situs yang kamu tulis setiap kali latar tersebut dipakai. Link disimpan di browser (kunci `latarSendiri`). Situs tersebut dapat mencatat alamat IP dan informasi browser seperti permintaan web biasa.
+
+**8. Radio**: panel Radio memuat pemutar publik `https://www.radiotune.fm/id-id/` dalam iframe, **hanya setelah kamu menekan Lihat semua** di kartu Radio (tidak dimuat saat tab dibuka). Tanpa token dan tanpa data pribadimu, dan tanpa header Referer. Situs tersebut dapat mencatat alamat IP dan informasi browser, dan dapat menyimpan cookie atau data miliknya sendiri di dalam iframe sesuai kebijakannya. Kontennya berasal dari pihak ketiga dan tidak dikendalikan extension ini.
 
 Extension tidak meminta izin situs (`host_permissions`) apa pun; izin yang dipakai hanya `storage`.
 

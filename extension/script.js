@@ -334,6 +334,8 @@ $("btn-flip").addEventListener("click", () => putar(true));
 // Radio: tertutup secara default; "Lihat semua" membuka pemutar RadioTune, "Tutup" menyembunyikannya lagi
 $("radio-lihat").addEventListener("click", () => {
   const terbuka = $("radio").classList.toggle("terbuka");
+  const fr = $("radio-iframe"); // RadioTune baru dimuat saat dibuka pertama kali (tidak ada permintaan ke pihak ketiga sebelumnya)
+  if (terbuka && !fr.getAttribute("src")) fr.src = fr.dataset.src;
   $("radio-lihat").setAttribute("aria-expanded", String(terbuka));
   $("radio-lihat").textContent = terbuka ? "Tutup ⤒" : "Lihat semua ⤓";
 });

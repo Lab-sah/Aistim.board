@@ -22,9 +22,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Periksa ID extension tetap
         run: python3 tools/id-extension.py
+      - name: Tes
+        run: node tools/test.js
       - name: Build ZIP
         run: |
           node --check extension/script.js
