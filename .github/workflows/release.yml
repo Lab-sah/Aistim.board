@@ -22,9 +22,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Periksa ID extension tetap
         run: python3 tools/id-extension.py
+      - name: Tes
+        run: node tools/test.js
       - name: Build ZIP
         run: |
           node --check extension/script.js
@@ -34,14 +36,19 @@ jobs:
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
           (cd extension && zip -r "../$ZIP" .)
           unzip -l "$ZIP" | grep -E ' manifest\.json$'
+      - name: Build ZIP untuk Web Store (tanpa key dan tanpa pemeriksa pembaruan)
+        run: |
+          WS="Aistim-board-webstore-$VERSION.zip"
+          echo "WS=$WS" >> "$GITHUB_ENV"
+          python3 tools/build-webstore.py "$WS"
       - name: Create release / upload asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v$VERSION"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$ZIP" --clobber
+            gh release upload "$TAG" "$ZIP" "$WS" --clobber
           else
-            gh release create "$TAG" "$ZIP" --title "Aistim Board v$VERSION" --notes "Unduh **$ZIP**, ekstrak, lalu Load unpacked. ID extension tetap (lihat README)." --latest \
-              || gh release upload "$TAG" "$ZIP" --clobber
+            gh release create "$TAG" "$ZIP" "$WS" --title "Aistim Board v$VERSION" --notes "Unduh **$ZIP**, ekstrak, lalu Load unpacked. ID extension tetap (lihat README)." --latest \
+              || gh release upload "$TAG" "$ZIP" "$WS" --clobber
           fi
